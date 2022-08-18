@@ -1,0 +1,681 @@
+MODULE,MODULE_TITLE,MODULE_TYPE
+AM1010,Latin America and the Caribbean,2
+CH1550,Chemistry Laboratory and Assessed Work,1
+CH1600,Introduction to Inorganic Chemistry,1
+CH1610,Introduction to Organic Chemistry,1
+CH1620,Introduction to Physical Chemistry,1
+CH2220,Chemistry Laboratory,1
+CH2420,Introduction to Polymer Chemistry,1
+CH2480,Organic Synthesis,1
+CH2490,Foundations of Electrochemistry and Properties of Solutions,1
+CH2640,Organic Chemistry II,1
+CH2650,Statistical Mechanics,1
+CH2660,Symmetry & Group Theory in Chemistry,1
+CH2670,"Transition Metal Chemistry: Structure, Reactivity & Organometalic Chemistry",1
+CH2680,Solid State Materials,1
+CH2690,Introduction to Biological & Medicinal Chemistry,1
+CH2A50,Key Skills,4
+CS1180,Programming for Computer Scientists,1
+CS1260,Design of Information Structures,3
+CS1300,Mathematics for Computer Scientists I,1
+CS1310,Mathematics for Computer Scientists II,1
+CS1320,Computer Organisation and Architecture,3
+CS1330,Professional Skills,3
+CS1370,Discrete Mathematics & its Applications 2,1
+CS1390,Web Development Technologies,3
+CS1400,Computer Security,3
+CS1410,Functional Programming,3
+CS2410,Operating Systems and Computer Networks,3
+CS2540,Algorithmic Graph Theory,1
+CS2550,Artificial Intelligence,3
+CS2580,Database Systems,1
+CS2590,Formal Languages,3
+CS2600,Algorithms,1
+CS2610,Software Engineering,3
+CS2620,Logic and Verification,3
+CS2630,Cyber Security,3
+CS3240,Computer Graphics,3
+CS3420,Machine Learning,3
+CX1020,Introduction to Greek & Roman History,3
+EC1040,The World Economy: History & Theory,3
+EC1060,Introduction to Quantitative Economics,1
+EC1090,Microeconomics 1,1
+EC1190,Mathematical Analysis,1
+EC1210,Mathematical Techniques A,1
+EC1220,Statistical Techniques A,1
+EC1230,Mathematical Techniques B,1
+EC1310,Economics for Business,1
+EC1320,The Industrial Economy: Strategy,3
+EC1330,Linear Algebra,1
+EC2010,Macroeconomics 2,1
+EC2020,Microeconomics 2,1
+EC2030,Economic and Social Statistics,1
+EC2030,Economic and Social Statistics,1
+EC2030,Applied Econometrics,1
+EC2030,Applied Econometrics,1
+EC2040,Economics 2,1
+EC2050,Development Economics:Macroeconomics,1
+EC2080,Industrial Economics 1: Market Structure,1
+EC2080,Industrial Economics 1: Market Structure,1
+EC2200,Mathematical Economics 1a,1
+EC2210,Mathematical Economics 1b,1
+EC2240,War and Economy in the Twentieth Century,3
+EC2260,Econometrics 1,1
+EC2280,Collective Decisions,3
+EC2290,Economics of Strategy,1
+EC2300,Economics of Money and Banking,1
+EC2310,Industrial Economics 1: Strategic Behaviour,1
+EC3030,The British Economy in the 20th Century,2
+EC3040,Making of Economic Policy,2
+EC3040,Making of Economic Policy,1
+EC3060,Econometrics 2: Time Series,1
+EC3070,Macroeconomic Policy in the EU,3
+EC3100,Topics in Development Economics,3
+EC3120,International Economics,1
+EC3120,International Economics,1
+EC3130,The International Economic System since 1918,3
+EC3140,Topics in Economic Theory,3
+EC3180,Labour Economics,3
+EC3200,Economics of Public Policy,3
+EC3200,Economics of Public Policy,3
+EC3330,Topics in Financial Economics: Theory & Intl Pract,1
+EC3340,Topics in Financial Economics: Corp Fin & Mkts,1
+EC3350,Managerial Economics,3
+EC3360,International Trade,2
+EC3370,Industrial Economics 2,1
+EC3380,Econometrics 2: Microeconometrics,1
+EC3450,Behavioural Economics: Theory and Applications,1
+EN1010,Epic into Novel,3
+EN1230,Literature in the Modern World,3
+EN2010,The European Novel,3
+EN3870,Queering the Literacy Landscape,3
+EN3930,Advanced Screenwriting,3
+EQ1010,Contemporary Educational Issues,2
+EQ1040,International Education,2
+EQ1050,Social Contexts of Childhood and Education,2
+ES101,Introduction to Engineering: Professionalism and Practice,3
+ES1730,Biomedical Engineering,3
+ES1740,Design for Function,3
+ES1770,The Aesthetics of Design,3
+ES1810,Technology in International Development,3
+ES1820,Multimedia Technology,3
+ES1830,Engineering Mathematics and Systems Modelling,1
+ES1840,"Mechanics, Structures and Thermodynamics",1
+ES1850,Electrical and Electronic Circuits,1
+ES1870,Introduction to Engineering Business Management,3
+ES190,Dynamics and Thermodynamics,3
+ES191,Electrical and Electronic Circuits,3
+ES192,Engineering Design,3
+ES193,Engineering Mathematics,1
+ES194,Introduction to Engineering Business Management,3
+ES195,Materials for Engineering,3
+ES196,Statics and Structures,1
+ES197,"Systems Modelling, Simulation and Computation",3
+ES2A80,Engineering Design,3
+ES2A90,Engineering Mathematics and Technical Computing,1
+ES2B00,Mechanics of Solids and Fluids,3
+ES2B10,Energy Conservation and Power Systems,3
+ES2B20,Technical Operations Management,3
+ES2B30,Engineering Materials,3
+ES2B60,Starting a Business,2
+ES2C5,Dynamics and Fluid Mechanics,3
+ES2C6,Electromechanical System Design,3
+ES2C7,Engineering Mathematics and Data Analytics,1
+ES2D0,Industrial Engineering,3
+ES2D7,Systems and Software Engineering Principles,3
+ES2D8,Technical Operations Management,3
+ET2150,Quantitative Research Methods,1
+FI1010,Discovering Cinema,3
+FI1010,Intro to Film Studies,3
+FP0060,Mathematics and Statistics,1
+FP0110,Inquiry and Research Skills for Business,3
+FP0180,Economics,1
+FP0200,Pure Mathematics,1
+FR340,States of the Nation: French Cinema and Society from 1990 to the present,3
+GD1070,Global Sustainable Development (GSD) Project,2
+GD3040,"Food Systems: Security, Sovereignty and Sustainability",3
+GD3050,Challenges of Climate Change,3
+GD3060,Achieving Sustainability: Potentials and Barriers,3
+GE1020,Modern German Language (International Business) I,3
+GE2020,Modern German Language (International Business) II,3
+GE3010,German for International Business 4,3
+HA1A10,Introduction to Art History:The Natural World and the Arts of Modernity,3
+HA2C70,Italian Renaissance Sculpture,3
+HA2D10,Spanish Painting of the Golden Age,3
+HI153,Making of the Modern World,3
+HI1740,The Enlightenment,3
+HI1760,Kill or Cure:  The History of Medicine,3
+HI1770,"A History of Africa, 1830-1980",3
+HI2770,Africa and the Cold War,3
+HI2A50,"Individual, Polis and Society: Philosophical Reflections in History",2
+HI2B50,A Global History of Football,3
+HI2B60,A Social History of Cricket,3
+IB0010,Undergraduate Induction Programme,3
+IB0011,Undergraduate Induction Foundation Year,3
+IB0040,Business Mathematics and Statistics,1
+IB0040,Business Mathematics and Statistics,1
+IB0040,Business Mathematics and Statistics,1
+IB0040,Statistics,1
+IB0040,Statistics,1
+IB0040,Statistics,1
+IB0050,Foundations of Business,2
+IB0050,Foundations of Business,2
+IB0060,CORE Learning,2
+IB0060,CORE Learning,2
+IB0060,Academic Practice,2
+IB0060,Academic Practice,2
+IB0070,"Problem-Solving in Organisations",2
+IB0070,"Problem-Solving in Organisations",2
+IB0070,"Problem-Solving in Organisations",2
+IB0070,"Problem-Solving in Organisations",2
+IB0070,Creativity and Innovation,2
+IB0070,Creativity and Innovation,2
+IB0070,Creativity and Innovation,2
+IB0070,Creativity and Innovation,2
+IB0080,Individual Project,3
+IB0090,Advanced Mathematics,1
+IB0100,Intermediate Mathematics,1
+IB1040,Mathematical Programming I,1
+IB1130,Business Law 1,2
+IB1130,Business Law,2
+IB1140,Financial Management,1
+IB1150,Business Planning - Integrative Project,2
+IB1150,Business Planning - Integrative Project,2
+IB1160,Foundations of Management Accounting,2
+IB1160,Foundations of Management Accounting,2
+IB1170,Principles of Marketing and Strategy,2
+IB1170,Principles of Marketing and Strategy,2
+IB1170,"Markets, Marketing and Strategy",2
+IB1170,"Markets, Marketing and Strategy",2
+IB1200,Operations Management,3
+IB1210,Business Statistics,1
+IB1210,Business Statistics,1
+IB1210,Quantitative Analysis for Management I,1
+IB1210,Quantitative Analysis for Management I,1
+IB1220,Business Analytics,1
+IB1220,Business Analytics,1
+IB1220,Quantitative Analysis for Management II,1
+IB1220,Quantitative Analysis for Management II,1
+IB1230,Foundations of Organisational Behaviour,2
+IB1230,Foundations of Organisational Behaviour,2
+IB1240,Introduction to Financial Accounting,1
+IB1240,Introduction to Financial Accounting,1
+IB1250,Foundations of Financial Management,1
+IB1250,Foundations of Financial Management,1
+IB1320,Foundations of Finance,1
+IB1330,Foundations of Accounting,1
+IB1330,Foundations of Accounting,1
+IB1340,Digital Business in Modern Organisations,2
+IB1340,Digital Business in Modern Organisations,2
+IB1350,Business Systems Analysis,4
+IB1350,Business Systems Analysis,4
+IB1360,Data Modelling and Analysis,1
+IB1360,Data Modelling and Analysis,1
+IB1370,Programming Solutions 1,1
+IB1370,Programming Solutions 1,1
+IB1380,"Management, Organisation and Society",2
+IB1380,"Management, Organisation and Society",2
+IB1390,CORE Practice: Shaping your future self,2
+IB1390,CORE Practice: Shaping your future self,2
+IB1410,Digital Innovation Project 1,2
+IB1410,Digital Innovation Project 1,2
+IB1420,Agile Programming,1
+IB1430,Digital Ventures,2
+IB1440,Introduction to Innovation and Entrepreneurship,2
+IB1450,"CORE: Foundations, Skills and Debates",2
+IB1460,Accounting for Business,1
+IB1470,Management of Global Risks,3
+IB2070,Mathematical Programming 2,1
+IB2070,Mathematical Programming 2,1
+IB2090,Marketing,2
+IB2110,Simulation,3
+IB2170,Starting a Business,2
+IB2190,Quantitative Methods for Multivariate Analysis,1
+IB2190,Quantitative Methods for Multivariate Analysis,1
+IB2200,Quantitative Methods for Resource Management,1
+IB2200,Quantitative Methods for Resource Management,1
+IB2300,Accounting in Context,1
+IB2320,Issues in Management Accounting,4
+IB2320,Issues in Management Accounting,4
+IB2330,Financial Reporting 1,1
+IB2340,Financial Reporting 2,1
+IB2350,Finance 1: Financial Markets,1
+IB2350,Finance 1: Financial Markets,1
+IB2360,Finance 2: Corporate Finance,1
+IB2360,Finance 2: Corporate Finance,1
+IB2370,Business Law 2,2
+IB2380,Organisational Analysis,2
+IB2380,Organisational Analysis,2
+IB2390,Changing Organisations,2
+IB2400,Understanding Employment Relations,2
+IB2400,Understanding Employment Relations,2
+IB2420,Digital Business and Workplace Technologies,4
+IB2420,Digital Business and Workplace Technologies,4
+IB2430,Business Systems Development,4
+IB2430,Business Systems Development,4
+IB2440,Managing Customer Service,2
+IB2440,Managing Customer Service,2
+IB2470,Improving Process Performance,4
+IB2480,"Governance, Politics and Corporate Accountability",2
+IB2480,"Governance, Politics and Corporate Accountability",2
+IB2490,Global Environment of Business,2
+IB2490,Global Environment of Business,2
+IB2500,Global Integrative Project,2
+IB2500,Global Integrative Project,2
+IB2530,Principles of Finance 1,1
+IB2530,Principles of Finance 1,1
+IB2540,Principles of Finance 2,1
+IB2540,Principles of Finance 2,1
+IB2550,Entrepreneurship and New Businesses,2
+IB2550,Entrepreneurship and New Businesses,2
+IB2560,UPP Accounting and Finance in Context,4
+IB2570,UPP Employment Year Portfolio,4
+IB2580,Foundations of Human Sociality and Cooperation,2
+IB2580,Foundations of Human Sociality and Cooperation,2
+IB2600,Business Consulting/Research Methods,2
+IB2600,Business Consulting/Research Methods,2
+IB2610,Enterprise Information Systems,2
+IB2610,Enterprise Information Systems,2
+IB2630,Design Thinking for Digital Innovation,4
+IB2630,Design Thinking for Digital Innovation,4
+IB2640,Acting Responsibly,2
+IB2650,Service Marketing,2
+IB2660,Fundamentals of Finance,1
+IB2660,Fundamentals of Finance,1
+IB2A50,Web Applications Development,4
+IB2A50,Web Applications Development,4
+IB2A70,Study Abroad Part-Year,3
+IB2A80,Study Year Abroad,3
+IB2A90,Work Placement Part Year,3
+IB2B00,Work Placement Year,3
+IB2B30,Funding Your Digital Venture,4
+IB2B40,Digital Business in Modern Organisations,2
+IB2B40,Digital Business in Modern Organisations,2
+IB3120,Project (Full weight),3
+IB3121,Project (Half weight),3
+IB3130,Business Studies I,2
+IB3140,Business Studies II,2
+IB3200,Simulation,1
+IB3260,Consumer Behaviour,2
+IB3260,Consumer Behaviour,2
+IB3260,Buyer Behaviour,2
+IB3260,Buyer Behaviour,2
+IB3370,Business Taxation,1
+IB3490,Operational Research for Strategic Planning,4
+IB3490,Operational Research for Strategic Planning,4
+IB3520,Applied Optimisation Methods,1
+IB3520,Applied Optimisation Methods,1
+IB3520,Applied Optimisation Methods,1
+IB3520,Applied Optimization Methods,1
+IB3520,Applied Optimization Methods,1
+IB3520,Applied Optimization Methods,1
+IB3570,Investment Management,1
+IB3590,"Derivatives and Risk Management
+",1
+IB3590,"Derivatives and Risk Management
+",1
+IB3610,Equality and Diversity,2
+IB3620,Managing Human Resources,2
+IB3620,Managing Human Resources,2
+IB3650,Marketing Communications,2
+IB3650,Marketing Communications,2
+IB3680,International Business Strategy,2
+IB3680,International Business Strategy,2
+IB3700,Managing Strategy in the Digital Era,2
+IB3700,Managing Strategy in the Digital Era,2
+IB3700,Strategic Information Management,2
+IB3700,Strategic Information Management,2
+IB3730,Advanced Management Accounting,1
+IB3730,Advanced Management Accounting,1
+IB3770,Advanced Financial Reporting,1
+IB3810,Critical Issues in Management,2
+IB3810,Critical Issues in Management,2
+IB3820,Project Management,2
+IB3840,Supply Chain Management,4
+IB3840,Supply Chain Management,4
+IB3850,Marketing,2
+IB3860,International Business in Context,2
+IB3870,Marketing Strategy,2
+IB3880,International Marketing,2
+IB3880,International Marketing,2
+IB3900,Year Abroad Portfolio,3
+IB3940,International Financial Management,1
+IB3940,International Financial Management,1
+IB3950,Finance in New Ventures,1
+IB3950,Finance in New Ventures,1
+IB3960,Financial Statement Analysis & Security Valuation,1
+IB3960,Financial Statement Analysis & Security Valuation,1
+IB3A20,Critical Issues in Law and Management,2
+IB3A50,Marketing Management,2
+IB3A70,The Practice of Operational Research,4
+IB3A70,The Practice of Operational Research,4
+IB3A90,Design in Business,2
+IB3D80,Corporate Strategy Part A,2
+IB3D80,Corporate Strategy Part A,2
+IB3D90,Corporate Strategy Part B,2
+IB3D90,Corporate Strategy Part B,2
+IB3E00,Comparative European Employment Relations,2
+IB3E00,Comparative European Employment Relations,2
+IB3E10,International and European Employment Relations,2
+IB3E10,International and European Employment Relations,2
+IB3E50,Managing IT Enterprise Architecture,4
+IB3E60,Ethical Issues & Social Responsibility in Contemporary Business,2
+IB3E60,Ethical Issues & Social Responsibility in Contemporary Business,2
+IB3E80,Managerial Work and Practice,2
+IB3E80,Managerial Work and Practice,2
+IB3E90,Managing IT Solution Architecture,4
+IB3E90,Managing IT Solution Architecture,4
+IB3F00,"Auditing, Governance and Accountability",1
+IB3F00,"Auditing, Governance and Accountability",1
+IB3F20,Company Law,2
+IB3F60,Understanding Enterprise,2
+IB3F60,Understanding Enterprise,2
+IB3F70,Understanding the Entrepreneur,2
+IB3F70,Understanding the Entrepreneur,2
+IB3G40,Law for Entrepreneurs,2
+IB3H00,International Management in Context,2
+IB3H40,Styles of Coaching and Team Leadership,2
+IB3H50,Images of Creativity,2
+IB3H70,Mergers and Acquisitions,2
+IB3H70,Mergers and Acquisitions,2
+IB3H80,Leadership,2
+IB3H90,"Strategic Games:Thinking rationally about business, policy and real life",4
+IB3H90,"Strategic Games:Thinking rationally about business, policy and real life",4
+IB3J00,Behavioural Economics,4
+IB3J20,Decision Making under Uncertainty,1
+IB3J20,Decision Making under Uncertainty,1
+IB3J30,Mathematical Game Theory: Combinatorial and Search Games,1
+IB3J50,Emotions in Business,2
+IB3J60,Neuroscience for Business and Social Studies,4
+IB3J80,Banks and Financial Systems,1
+IB3J80,Banks and Financial Systems,1
+IB3J90,Open Innovation in the Digital Economy,2
+IB3J90,Open Innovation in the Digital Economy,2
+IB3K10,Global Sourcing and Innovation,2
+IB3K10,Global Sourcing and Innovation,2
+IB3K20,Financial Optimisation,1
+IB3K40,Dissertation UGISMI,3
+IB3K50,Business Data Analytics,1
+IB3K50,Business Data Analytics,1
+IB3K50,"Artificial Intelligence for Business",4
+IB3K50,"Artificial Intelligence for Business",4
+IB3K70,Financial Markets: Organisations and Technology,1
+IB3K70,Financial Markets: Organisations and Technology,1
+IB3K80,"The Economics of Well-Being",2
+IB3K80,"The Economics of Well-Being",2
+IB3L00,Critical Perspectives of Accounting,2
+IB3L60,Digital Innovation Project 2,3
+IB4030,MMORSE - Dissertation,3
+IB4050,"International Perspectives in Business , Management and Society",2
+IB4090,Business and Society in Contemporary Germany,2
+IB91SB,Strategy Analysis and Practice,2
+IB91W0,Operations Management,4
+IB91X0,Marketing,2
+IB93PB,International Business,2
+IB94W0,Spreadsheet Modelling,1
+IB98R0,Leading and Managing Change,2
+IB9AZ0,Fundamentals of Economic Behaviour,4
+IB9BC0,Strategic Management Accounting,4
+IB9BCB,Strategic Management Accounting,4
+IB9BQ0,Pricing & Revenue Management,1
+IB9BS0,Supply Chain Analytics,4
+IB9BW0,Analytics in Practice,4
+IB9HP0,Data Management,4
+IB9X30,Research Methods for Marketing and Strategy,2
+IE3E10,Introduction to Secondary School Teaching (Mathematics),3
+IE3E2,Introduction to Secondary Teaching in Physics,3
+IL0020,Navigating Psychopathology,2
+IL0050,Applied Imagination: Theory and Practice,2
+IL0060,Climate Change,2
+IL0080,Reinventing Eduction,2
+IL0120,Achieving Sustainability,2
+IL0160,The Science of Music,4
+IL0180,Censorship and Society,2
+IL0200,Entrepreneurship A Critical Perspective,2
+IL0220,"Sport, Philosophy and Practice",3
+IL0230,Genetics: Science and Society,3
+IL0260,Gender & Violence,2
+IL0270,Interdisciplinary Computer Modelling,1
+IL0290,An Introduction to Design Thinking Theory and Practice,3
+IT1010,Italian for Beginners,3
+IT1050,Working Italian,3
+IT1070,Modern Italian Language I,3
+IT1080,Modern Italian Language I (intermediate),3
+IT2010,Modern Italian Language II,3
+IT3010,Modern Italian Language III,3
+IT4010,Modern Italian Language IV,3
+LA1030,Introduction to the Law of Property Relations,2
+LA1040,Criminal Law,2
+LA1150,The Modern English Legal System,3
+LA1150,The Modern English Legal System,3
+LA1160,Introduction to Legal Theory,2
+LA1240,Tort Law,2
+LA2010,General Principles of Constitutional & Admin Law,2
+LA2050,International Law,2
+LA2170,Social Theory of Law,2
+LA2270,Introduction to Competition Law,2
+LA2300,Law and the International Business Environment,2
+LA2300,Law and the International Business Environment,2
+LA2330,Refugee and Asylum Law,2
+LA2360,Criminal Justice & Human Rights in Europe,2
+LA2400,Foundations of European Law,2
+LA2410,Law & Policies of the European Union,2
+LA2420,"Origins, Images and Cultures of English Law",2
+LA2430,Contract Law,2
+LA3070,Law of Trusts A and B,2
+LA3100,Law of Business Organisations,2
+LA3200,Comparative Human Rights,2
+LA3330,Medicine and the Law,3
+LA3410,Introduction to Law and Culture of Japan,2
+LA3460,Gender and the Law,2
+LA3510,"Taxation Law, Policy and Principles",4
+LA3520,International Criminal Law,2
+LA3540,An Introduction to Islamic Law,2
+LA3550,Conflict of Laws in a Commercial Context,2
+LA3550,Conflict of Laws in a Commercial Context,2
+LA3580,Child Law,2
+LA3590,Family Law,2
+LA3630,"Law, Globalisation and the Environment",2
+LA3630,Climate Change and Law,2
+LA3650,Financial Services Regulation,1
+LA3660,Global Intellectual Property Law and Policy,2
+LA3720,Foundations of Commercial Law,2
+LA3730,Advanced Legal System,2
+LA3840,The Art of Advocacy: Mooting and Forensic Rhetoric,2
+LA3910,Data Protection Law,3
+LL1130,French 1,3
+LL1170,German 1,3
+LL1210,Spanish 1,3
+LL1220,Russian 1,3
+LL1280,Spanish for International Business 1,3
+LL1290,Japanese 1,3
+LL1300,Chinese 1,3
+LL1310,Arabic 1,3
+LL2080,French 4,3
+LL2090,French 5,3
+LL20A,German Intermediate Accelerated,3
+LL2110,German 4,3
+LL2120,German 5,3
+LL2150,Spanish 2,3
+LL2160,Russian 2,3
+LL2220,Spanish 3,3
+LL2230,Spanish for International Business 2,3
+LL2240,Spanish 4,3
+LL2250,Japanese 2,3
+LL2260,Japanese 3,3
+LL2270,Chinese 2,3
+LL2280,Spanish 5,3
+LL2290,German 6,3
+LL2300,Chinese 3,3
+LL2330,Arabic 2,3
+LL2340,French 2,3
+LL2350,German 2,3
+LL2360,French 3,3
+LL2370,German 3,3
+LL2390,Chinese 4,3
+LL2450,Chinese 5,3
+LL2500,French for Business (advanced 1),3
+LL2510,French for Business (advanced 2),3
+LL2530,Russian 3,3
+LL2550,French Intermediate Accelerated,3
+LL2570,Spanish Intermediate Accelerated,3
+LL2590,Arabic 3,3
+LL2600,Chinese Intermediate Accelerated,3
+LL2620,French Beginners Accelerated,3
+LL2630,German Beginners Accelerated,3
+LL2640,Spanish Beginners Accelerated,3
+LL2900,Arabic Beginners (Accelerated),3
+LL2910,Japanese for Beginners (Accerlerated),3
+LL2920,Portuguese Beginners (Accelerated),3
+LL2930,Russian Beginners Accelerated,3
+LL2940,Spanish through Translation,3
+LL2950,Spanish Language Through Films,3
+LL2970,French Through Translation,3
+LL2980,French Language Through Films,3
+LL2990,Portuguese Intermediate accelerated,3
+LL2A10,Arabic Extra (Continuation),3
+LL2A20,Chinese Extra (Continuation),3
+LL2A9,Chinese for Heritage Students,3
+LL2A90,Chinese for Heritage Students,3
+LL2B1,Chinese Beginners (Extra),3
+LL2B2,Italian beginners,3
+LL2B20,Italian beginners accelerated,3
+LL2B30,Chinese Foundational Reading Writing,3
+LL2B40,Italian Intermediate Accelerated,3
+LL3070,French Language of Contemporary France,3
+LL3080,French Language for Enterprise,3
+LL3090,Spanish Language through Contemporary Hispanic Culture,3
+LL3110,Spanish for Enterprise,3
+LL3120,Spanish for International Business 4,3
+LL3130,Chinese 6 for Business,3
+LL3160,Chinese Advanced Reading and Writing,3
+MA1060,Linear Algebra,3
+MA1120,Experimental Mathematics,1
+MA1170,Programming for Scientists,1
+MA1170,Programming for Scientists,1
+MA1240,Mathematics by Computer,1
+MA1250,Introduction to Geometry,1
+MA1310,Analysis,4
+MA1320,Foundations,4
+MA1330,Differential Equations,1
+MA134,Geometry and Motion,1
+MA1340,Geometry and Motion,1
+MA1360,Introduction to Abstract Algebra,1
+MA2130,Second Year Essay,3
+MA2220,Metric Spaces,1
+MA2250,Differentiation,1
+MA2310,Vector Analysis,1
+MA2410,Combinatorics,1
+MA2440,Analysis III,1
+MA2490,Algebra II: Groups and Rings,1
+MA2510,Algebra I: Advanced Linear Algebra,1
+MA2520,Combinatorial Optimisation,1
+MA2540,Theory of ODE's,4
+MA2570,Introduction to Number Theory,1
+MA2590,Multivariable Calculus,1
+MA2600,Norms Metrics and Topologies,1
+PH1230,Elements of Scientific Method,1
+PH1360,Logic 1,1
+PH1410,Issues In Philosophy,2
+PH142,Central Themes in Philosophy,2
+PH1430,"Existence, Experience, History: Key Topics in Continental Philosophy",2
+PH1440,Mind & Reality,2
+PH2110,Ethics 1,2
+PH2120,Ethics 2,2
+PH3290,"Truth, Consequence and Paradox",2
+PH3560,"Post-Kantian Social and Political Philosophy: Hegel and Marx
+            Module:
+Post-Kantian Soci",2
+PH3580,Feminism,2
+PO1310,World Politics,2
+PO1320,Contemporary Themes in Comparative Politics,2
+PO1330,Foundations of Political Economy,4
+PO1350,Nine Ideas in International Security,2
+PO2010,Political Theory from Hobbes,2
+PO2060,Politics in the United Kingdom,2
+PO2070,Politics in the USA,2
+PO2190,Theories of International Relations,2
+PO2300,States and Markets: An Introduction to International Political Economy,2
+PO2310,International Security,2
+PO2400,Capitalism and Its Alternatives,2
+PO2420,Political Economy and the Liberal-Democratic State,2
+PO3010,Issues in Political Theory,2
+PO353,Gender and Development,2
+PO355,Governing Britain since 1918,2
+PO3580,The Politics of European Union Policy-Making,2
+PO380,Britain and the War on Terror,2
+PO3820,Vigilant State: Understanding Secret Intellegence,2
+PO3840,East Asian Transformations: A Political Economy Perspective,2
+PO3870,"State, Power, Freedom: European Political Theory",2
+PO3910,Political Economy of Money,2
+PO3980,Politics and Culture in the Middle East,2
+PS1110,Brain and Behaviour,2
+PS1120,Psychology in Context,2
+PS1150,Topics in Psychology,2
+PS2010,Individual Differences,2
+PS2100,Language and Thought,3
+PS2110,"Perception, Planning and Action",2
+PS2180,Developmental Psychology,2
+PS2200,Social Psychology,2
+PS3530,Developmental Psychopathology,2
+PS3550,"Attention
+Guest access requires password
+
+",2
+PS3590,Behaviour Change,2
+PS3600,Nonverbal Behaviour,2
+PS3670,Psychology Across Cultures,2
+PX1010,Quantum Phenomena,1
+PX1100,Physics Laboratory,1
+PX1200,Electricity and Magnetism,1
+PX1400,Electronics Workshop,1
+PX1440,Introduction to Astronomy,1
+PX1450,Physics Foundations,1
+PX1460,Key Skills for Physics,1
+PX1470,Introduction to Particle Physics,1
+PX1480,Classical Mechanics & Special Relativity,1
+PX1490,Mathematics for Physicists,1
+PX1500,Physics Programming Workshop,1
+PX2620,Quantum Mechanics and its Applications,1
+PX2630,Electromagnetic Theory and Optics,1
+PX2640,Physics of Fluids,1
+PX2650,Thermal Physics II,1
+PX2660,Geophysics,1
+PX2670,Hamiltonian Mechanics,1
+PX2680,Stars,1
+PX2710,Physics Skills,1
+PX2730,Physics of Electrical Power Generation,1
+PX2750,Mathematical Methods for Physicists,1
+PX277,Computational Physics,1
+QS1040,Introduction to Social Analytics I,1
+SO1120,International Perspectives on Gender,2
+SO1160,Sociology of Gender,1
+SO1180,"Life of Media: Past, Present and Future",2
+SO1180,"Life of Media: Past, Present and Future",2
+SO120,Researching Society & Culture,1
+SO1220,Race and the Making of the Modern World,1
+SO123,Sociology of Education,2
+SO126,Class and Capitalism in the Neoliberal World,2
+SO127,Crime and Society,2
+SO1280,History of Sociological Thought,2
+SO2310,"Transformations: Gender, Reproduction & Parenting in Contemporary Society",2
+SO2400,Commercial Cultures in Global Capitalism,2
+SO2420,Designing and Conducting Social Research,2
+SO244,Educational Inequalities,2
+SO2490,Becoming Yourself: The Construction of the Self in Contemporary Western Societies,2
+SO2560,"Gender, Crime and Justice",2
+SO3410,Transnationalism and New Media,2
+SO3410,Transnational Media Ecologies,2
+SO3440,"Sociology of Knowledge, Science and Intellectuals",2
+ST1040,Statistical Laboratory I,1
+ST1110,Probability Part A,1
+ST1120,Probability Part B,1
+ST2020,Stochastic Processes,1
+ST2200,Introduction to Mathematical Statistics,1
+ST2220,Games Decisions and Behaviour,2
+ST3330,Applied Stochastic Processes,1
+ST3390,Introduction to Mathematical Finance,1
+ST9060,Financial Time Series,1
+ST9090,Continuous Time Finance for Interest Rate Models,1
+ST9580,Topics in Mathematical Finance,1
+NA,NA,3

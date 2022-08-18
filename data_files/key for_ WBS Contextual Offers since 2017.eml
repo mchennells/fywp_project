@@ -1,0 +1,522 @@
+Received: from DB6PR0101MB2327.eurprd01.prod.exchangelabs.com
+ (2603:10a6:4:2f::16) by DB9PR01MB7451.eurprd01.prod.exchangelabs.com with
+ HTTPS; Fri, 12 Nov 2021 12:10:06 +0000
+Received: from DB8PR01MB6486.eurprd01.prod.exchangelabs.com
+ (2603:10a6:10:15f::24) by DB6PR0101MB2327.eurprd01.prod.exchangelabs.com
+ (2603:10a6:4:2f::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4669.15; Fri, 12 Nov
+ 2021 12:10:05 +0000
+Received: from DB8PR01MB6486.eurprd01.prod.exchangelabs.com
+ ([fe80::8c29:6431:7260:c537]) by DB8PR01MB6486.eurprd01.prod.exchangelabs.com
+ ([fe80::8c29:6431:7260:c537%7]) with mapi id 15.20.4690.016; Fri, 12 Nov 2021
+ 12:10:05 +0000
+From: "Jagger, Lucy" <Lucy.Jagger@warwick.ac.uk>
+To: "Kiefer, Tina" <Tina.Kiefer@wbs.ac.uk>
+Subject: RE: Files.Warwick download invite for: WBS Contextual Offers since
+ 2017.xlsx
+Thread-Topic: Files.Warwick download invite for: WBS Contextual Offers since
+ 2017.xlsx
+Thread-Index: AQHX17yEJnZ/4fr74Em/UDlXcNT20Kv/zAxSgAAAR1A=
+Date: Fri, 12 Nov 2021 12:10:05 +0000
+Message-ID:
+	<DB8PR01MB64868F02A6402F94C55BD3ACA5959@DB8PR01MB6486.eurprd01.prod.exchangelabs.com>
+References:
+	<645904720.18460.1636718264510.JavaMail.tomcat@tuuh6-files-prod-app-1>
+ <DB9PR01MB7451EC35359C19687F28A2D7AA959@DB9PR01MB7451.eurprd01.prod.exchangelabs.com>
+In-Reply-To:
+	<DB9PR01MB7451EC35359C19687F28A2D7AA959@DB9PR01MB7451.eurprd01.prod.exchangelabs.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Exchange-Organization-AuthAs: Internal
+X-MS-Exchange-Organization-AuthMechanism: 04
+X-MS-Exchange-Organization-AuthSource:
+	DB8PR01MB6486.eurprd01.prod.exchangelabs.com
+X-MS-Has-Attach: yes
+X-MS-Exchange-Organization-Network-Message-Id:
+	07ee3df0-b5c2-48ab-c08e-08d9a5d55d0b
+X-MS-Exchange-Organization-SCL: -1
+X-MS-TNEF-Correlator:
+X-MS-Exchange-Organization-RecordReviewCfmType: 0
+x-ms-publictraffictype: Email
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=warwick.ac.uk;
+x-forefront-antispam-report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:-1;SRV:;IPV:NLI;SFV:SKI;H:DB8PR01MB6486.eurprd01.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:;DIR:INB;
+x-microsoft-antispam: BCL:0;
+x-ms-exchange-transport-endtoendlatency: 00:00:00.5019784
+x-ms-exchange-crosstenant-originalarrivaltime: 12 Nov 2021 12:10:05.6577 (UTC)
+x-ms-exchange-crosstenant-fromentityheader: Hosted
+x-ms-exchange-crosstenant-id: 09bacfbd-47ef-4465-9265-3546f2eaf6bc
+x-ms-exchange-transport-crosstenantheadersstamped: DB6PR0101MB2327
+x-ms-traffictypediagnostic: DB6PR0101MB2327:
+x-ms-exchange-crosstenant-network-message-id:
+	07ee3df0-b5c2-48ab-c08e-08d9a5d55d0b
+x-ms-office365-filtering-correlation-id: 07ee3df0-b5c2-48ab-c08e-08d9a5d55d0b
+x-ms-exchange-processed-by-bccfoldering: 15.20.4669.016
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-ms-exchange-crosstenant-mailboxtype: HOSTED
+x-ms-exchange-crosstenant-userprincipalname:
+	u890ACk27rxtAp19vz2bugLcUb+GOXo2mdgM2SG8porF5xHaorzlOm4F5KWOPVhWHCcJ+zT5ufKiD8InQlWn8mDrfbvsWXHHkKOY0X9FE5g=
+x-ms-exchange-crosstenant-authas: Internal
+x-ms-exchange-crosstenant-authsource:
+	DB8PR01MB6486.eurprd01.prod.exchangelabs.com
+X-Microsoft-Antispam-Mailbox-Delivery:
+	ucf:0;jmr:0;auth:0;dest:I;ENG:(910001)(944506458)(944626604)(920097)(425001)(930096);
+X-Microsoft-Antispam-Message-Info:
+	KYrVpGJEKbTEMQ/7jKPybBJahPKdLxrjb0kBtDLtIheTIFWTmM2CsJgpheMf/kCSZWzsbW8VQoHfCskgazVhbwiwdRUYyFv/uOe8gTeTxpC4QQrldx8WVr6ZtEtzcObCSVavNVkckmCEPS7Z9+EbMYPTsoHFivrAR3zFcdJo0YBcXc48mXrY5e8PcSr3HJWKivi08q5OBnfKUMiMl7tqM45GiljW70FQ7le+jY82GagCwhrD9g6TdXm5RJbZ9p5BxgSmPd7aydZUJqVYxRXTSZkmDv/SEV1v7+m9WDBASp6wl2KQ/lFYLF37NJEn2TYYiOe+BKkhgoKgK6rwNAfgQWim4cRP4ELR1/ffLAlM9C1rxYHx1ltitJb5sJVxs0/HlmY/GI8P5ACe+Ykz5IVqW4pxYQz4SAV8cFdNQpb2nhdK+nAg2pIej6ErjbaHYa3hyw6kpESsi4UAnZ9W/O6Ols0gBu9hTDTiPQf0lK5hin7MS4Xg0Uzzou5qQurShlmuGqNnKYm1mdz76HC0DFybBrgpIAEdLkLybUh3l5uNcMabIdDbq0KZg1rza00fa6QxaiwrURuAu+nWFJ97wR1l4Ab3vBW/K8hLLA6+MsnILW3J6g2kaAMnzFBjiaxGZwnFtAJW02Svrf62dsmvspxQ0ZmiJ2/0aYEpwHQaS7+2TQRkk7WhKUHk64uJXRKlDjZ6fbSeypCAPFBgEzmY/OIc5ilVHBB89jBZsd3BsX/SpxVG9y5v1Xntv1pI6sdFLGnYN6s/Ppak5CyMObJUsjq6Y0ju0BwIsJpVq2SeIU3oWDddbGqURj41enxPEfBQRRkS9D44TFO/7SXiUEoQZV1jmg==
+Content-Type: multipart/related;
+	boundary="_004_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_";
+	type="multipart/alternative"
+MIME-Version: 1.0
+
+--_004_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_
+Content-Type: multipart/alternative;
+	boundary="_000_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_"
+
+--_000_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_
+Content-Type: text/plain; charset="us-ascii"
+
+Hi Tina,
+
+These are the old contextual data markers. A Yes means they met the criteria, X means no data and N means they didn't meet that criteria.
+
+  1.  KS4 School
+  2.  KS5 School
+  3.  In care
+  4.  Free School Meals
+  5.  Low Participation Area
+  6.  Eligible for a reduced offer yes or no
+
+Kind regards,
+Lucy Jagger
+
+Admissions Officer
+Undergraduate Admissions Team
+Student Recruitment, Outreach and Admissions Service |  University of Warwick<http://www2.warwick.ac.uk/>
+ugadmissions@warwick.ac.uk<mailto:ugadmissions@warwick.ac.uk> |
+University House  |  Kirby Corner Road  | University of Warwick | Coventry |  CV4 8UW  | Find us on the interactive map<http://www2.warwick.ac.uk/about/visiting/maps/interactive/>
+
+The quickest way to contact us is via our Live Chats<https://meetandengage.com/universityofwarwick> - please refer to the events calendar<https://warwick.ac.uk/study/events> for further details of the sessions available.
+[https://warwick.ac.uk/about/cityofculture/get-involved/cov2021resources/principal_partner.png]
+
+
+
+From: Kiefer, Tina <Tina.Kiefer@wbs.ac.uk>
+Sent: 12 November 2021 12:07
+To: Jagger, Lucy <Lucy.Jagger@warwick.ac.uk>
+Subject: Re: Files.Warwick download invite for: WBS Contextual Offers since 2017.xlsx
+
+Perfect, thanks.
+By the way, what is the key to this column?
+
+CAP_UDFF
+
+It has a lot of Yes/No
+
+Thanks. tina
+
+From: no-reply@warwick.ac.uk<mailto:no-reply@warwick.ac.uk> <no-reply@warwick.ac.uk<mailto:no-reply@warwick.ac.uk>> on behalf of Lucy.Jagger@warwick.ac.uk<mailto:Lucy.Jagger@warwick.ac.uk> <Lucy.Jagger@warwick.ac.uk<mailto:Lucy.Jagger@warwick.ac.uk>>
+Date: Friday, 12 November 2021 at 11:57
+To: Kiefer, Tina <Tina.Kiefer@wbs.ac.uk<mailto:Tina.Kiefer@wbs.ac.uk>>
+Subject: Files.Warwick download invite for: WBS Contextual Offers since 2017.xlsx
+Lucy Jagger has sent you a file. You can download the file from here (you will need to be logged in as bssjav) :
+
+*** This file has not been virus checked yet, download at your own risk ***
+
+
+Link for file download: https://files.warwick.ac.uk/public/invite?id=8a1785c678023c8a017d1402bcbd67a4
+
+File name: WBS Contextual Offers since 2017.xlsx
+File size: 277 KB
+Created date: 03 Sep 21 10:30 BST
+Last modified date: 03 Sep 21 10:30 BST
+This file will be available to download as many times as you like for 7 days (expires 19 Nov 21 11:57 GMT)
+
+Message from Lucy Jagger:
+Hi Tina,
+
+Please find attached the file.
+
+--_000_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_
+Content-Type: text/html; charset="us-ascii"
+
+<html xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns:m="http://schemas.microsoft.com/office/2004/12/omml" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii">
+<meta name="Generator" content="Microsoft Word 15 (filtered medium)">
+<!--[if !mso]><style>v\:* {behavior:url(#default#VML);}
+o\:* {behavior:url(#default#VML);}
+w\:* {behavior:url(#default#VML);}
+.shape {behavior:url(#default#VML);}
+</style><![endif]--><style><!--
+/* Font Definitions */
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+/* Style Definitions */
+p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+a:link, span.MsoHyperlink
+	{mso-style-priority:99;
+	color:blue;
+	text-decoration:underline;}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{mso-style-priority:34;
+	margin-top:0cm;
+	margin-right:0cm;
+	margin-bottom:0cm;
+	margin-left:36.0pt;
+	font-size:11.0pt;
+	font-family:"Calibri",sans-serif;}
+span.EmailStyle20
+	{mso-style-type:personal-reply;
+	font-family:"Calibri",sans-serif;
+	color:windowtext;}
+.MsoChpDefault
+	{mso-style-type:export-only;
+	font-size:10.0pt;}
+@page WordSection1
+	{size:612.0pt 792.0pt;
+	margin:72.0pt 72.0pt 72.0pt 72.0pt;}
+div.WordSection1
+	{page:WordSection1;}
+/* List Definitions */
+@list l0
+	{mso-list-id:1764496851;
+	mso-list-type:hybrid;
+	mso-list-template-ids:199531862 134807567 134807577 134807579 134807567 134807577 134807579 134807567 134807577 134807579;}
+@list l0:level1
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level2
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level3
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level4
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level5
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level6
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+@list l0:level7
+	{mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level8
+	{mso-level-number-format:alpha-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:left;
+	text-indent:-18.0pt;}
+@list l0:level9
+	{mso-level-number-format:roman-lower;
+	mso-level-tab-stop:none;
+	mso-level-number-position:right;
+	text-indent:-9.0pt;}
+ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+--></style><!--[if gte mso 9]><xml>
+<o:shapedefaults v:ext="edit" spidmax="1026" />
+</xml><![endif]--><!--[if gte mso 9]><xml>
+<o:shapelayout v:ext="edit">
+<o:idmap v:ext="edit" data="1" />
+</o:shapelayout></xml><![endif]-->
+</head>
+<body lang="EN-GB" link="blue" vlink="purple" style="word-wrap:break-word">
+<div class="WordSection1">
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">Hi Tina,<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">These are the old contextual data markers. A Yes means they met the criteria, X means no data and N means they didn&#8217;t meet that criteria.<o:p></o:p></span></p>
+<ol style="margin-top:0cm" start="1" type="1">
+<li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">KS4 School<o:p></o:p></span></li><li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">KS5 School<o:p></o:p></span></li><li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">In care<o:p></o:p></span></li><li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">Free School Meals<o:p></o:p></span></li><li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">Low Participation Area<o:p></o:p></span></li><li class="MsoListParagraph" style="margin-left:0cm;mso-list:l0 level1 lfo1"><span style="mso-fareast-language:EN-US">Eligible for a reduced offer yes or no<o:p></o:p></span></li></ol>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">Kind regards,<o:p></o:p></p>
+<p class="MsoNormal">Lucy Jagger<o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal">Admissions Officer<o:p></o:p></p>
+<p class="MsoNormal"><b><span style="color:black">Undergraduate Admissions Team</span></b><o:p></o:p></p>
+<p class="MsoNormal"><span style="font-size:10.0pt;color:black">Student Recruitment, Outreach and Admissions Service |&nbsp;
+<a href="http://www2.warwick.ac.uk/"><span style="color:black">University of Warwick</span></a><br>
+<u><a href="mailto:ugadmissions@warwick.ac.uk"><span style="color:#0563C1">ugadmissions@warwick.ac.uk</span></a>
+</u>|&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal"><span style="font-size:10.0pt;color:black">University House&nbsp; |&nbsp; Kirby Corner Road&nbsp; | University of Warwick | Coventry |&nbsp; CV4 8UW&nbsp; |
+<a href="http://www2.warwick.ac.uk/about/visiting/maps/interactive/"><span style="color:black">Find us on the interactive map</span></a></span><o:p></o:p></p>
+<p class="MsoNormal"><span style="font-size:10.0pt;color:black">&nbsp;</span><o:p></o:p></p>
+<p class="MsoNormal" style="margin-bottom:12.0pt;background:white;vertical-align:baseline">
+<span style="font-size:10.0pt;color:black;border:none windowtext 1.0pt;padding:0cm">The quickest way to contact us is via our
+</span><u><span style="font-size:10.0pt;color:#0070C0;border:none windowtext 1.0pt;padding:0cm"><a href="https://meetandengage.com/universityofwarwick" target="_blank" title="https://meetandengage.com/universityofwarwick"><span style="color:#0070C0">Live Chats</span></a>
+</span></u><span style="font-size:10.0pt;color:black;border:none windowtext 1.0pt;padding:0cm">- please refer to the
+<a href="https://warwick.ac.uk/study/events"><span style="color:#0563C1">events calendar</span></a> for further details of the sessions available.
+<o:p></o:p></span></p>
+<p class="MsoNormal"><img border="0" width="527" height="76" style="width:5.4916in;height:.7916in" id="x_Picture_x0020_2" src="cid:image001.jpg@01D7D7BE.39C5EE70" alt="https://warwick.ac.uk/about/cityofculture/get-involved/cov2021resources/principal_partner.png"><o:p></o:p></p>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<div>
+<div style="border:none;border-top:solid #E1E1E1 1.0pt;padding:3.0pt 0cm 0cm 0cm">
+<p class="MsoNormal"><b><span lang="EN-US">From:</span></b><span lang="EN-US"> Kiefer, Tina &lt;Tina.Kiefer@wbs.ac.uk&gt;
+<br>
+<b>Sent:</b> 12 November 2021 12:07<br>
+<b>To:</b> Jagger, Lucy &lt;Lucy.Jagger@warwick.ac.uk&gt;<br>
+<b>Subject:</b> Re: Files.Warwick download invite for: WBS Contextual Offers since 2017.xlsx<o:p></o:p></span></p>
+</div>
+</div>
+<p class="MsoNormal"><o:p>&nbsp;</o:p></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">Perfect, thanks. <o:p>
+</o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">By the way, what is the key to this column?<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="color:black">CAP_UDFF<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">It has a lot of Yes/No<o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US">Thanks. tina <o:p></o:p></span></p>
+<p class="MsoNormal"><span style="mso-fareast-language:EN-US"><o:p>&nbsp;</o:p></span></p>
+<div style="border:none;border-top:solid #B5C4DF 1.0pt;padding:3.0pt 0cm 0cm 0cm">
+<p class="MsoNormal" style="margin-bottom:12.0pt"><b><span style="font-size:12.0pt;color:black">From:
+</span></b><span style="font-size:12.0pt;color:black"><a href="mailto:no-reply@warwick.ac.uk">no-reply@warwick.ac.uk</a> &lt;<a href="mailto:no-reply@warwick.ac.uk">no-reply@warwick.ac.uk</a>&gt; on behalf of
+<a href="mailto:Lucy.Jagger@warwick.ac.uk">Lucy.Jagger@warwick.ac.uk</a> &lt;<a href="mailto:Lucy.Jagger@warwick.ac.uk">Lucy.Jagger@warwick.ac.uk</a>&gt;<br>
+<b>Date: </b>Friday, 12 November 2021 at 11:57<br>
+<b>To: </b>Kiefer, Tina &lt;<a href="mailto:Tina.Kiefer@wbs.ac.uk">Tina.Kiefer@wbs.ac.uk</a>&gt;<br>
+<b>Subject: </b>Files.Warwick download invite for: WBS Contextual Offers since 2017.xlsx<o:p></o:p></span></p>
+</div>
+<div>
+<p class="MsoNormal">Lucy Jagger has sent you a file. You can download the file from here (you will need to be logged in as bssjav) :<br>
+<br>
+*** This file has not been virus checked yet, download at your own risk ***<br>
+<br>
+<br>
+Link for file download: <a href="https://files.warwick.ac.uk/public/invite?id=8a1785c678023c8a017d1402bcbd67a4">
+https://files.warwick.ac.uk/public/invite?id=8a1785c678023c8a017d1402bcbd67a4</a><br>
+<br>
+File name: WBS Contextual Offers since 2017.xlsx<br>
+File size: 277 KB<br>
+Created date: 03 Sep 21 10:30 BST<br>
+Last modified date: 03 Sep 21 10:30 BST<br>
+This file will be available to download as many times as you like for 7 days (expires 19 Nov 21 11:57 GMT)<br>
+<br>
+Message from Lucy Jagger:<br>
+Hi Tina,<br>
+<br>
+Please find attached the file.<o:p></o:p></p>
+</div>
+</div>
+</body>
+</html>
+
+--_000_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_--
+
+--_004_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_
+Content-Type: image/jpeg; name="image001.jpg"
+Content-Description: image001.jpg
+Content-Disposition: inline; filename="image001.jpg"; size=10647;
+	creation-date="Fri, 12 Nov 2021 12:10:05 GMT";
+	modification-date="Fri, 12 Nov 2021 12:10:05 GMT"
+Content-ID: <image001.jpg@01D7D7BE.39C5EE70>
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAoHBwkHBgoJCAkLCwoMDxkQDw4ODx4WFxIZJCAmJSMg
+IyIoLTkwKCo2KyIjMkQyNjs9QEBAJjBGS0U+Sjk/QD3/2wBDAQsLCw8NDx0QEB09KSMpPT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT3/wAARCABMAg8DASIA
+AhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQA
+AAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3
+ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWm
+p6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEA
+AwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSEx
+BhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElK
+U1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3
+uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD2aiq2
+ozva6ZdTx43xQu65HGQCRXlsXjzxVbeC7XxZdT6TNZvJte0ETJIRvK8NnrxmgD1uivO/+Ek8Tax4
+z1jS9Ju9NtLexiilU3UDMSHQHBIPYmobf4oXkngu2vTYQyaxdXx0+CJGIikcY+f128jv1oA9Korh
+H8SeIvDGtaXb+J/7PubLU5RAs9ojIYJT0BBPIOev1qx4a8VajqsXik3Xk7tLupoYNiY+VQcbueel
+AHZ0V5TB498R6ho/hNrWSxivNZmnileSElF2vhcDPpXR6H4m1e28YP4Z8SJavcSQfaLW6tQVWRR1
+BU9DwfyoA7OiuO8fal4j0HTLrV9Ku7BbK2iUtDNAzOzbsHBBAxyKpTeK9a8OeDW1zXJLO+e6SH7F
+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
+
+--_004_DB8PR01MB64868F02A6402F94C55BD3ACA5959DB8PR01MB6486eurp_--
