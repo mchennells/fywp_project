@@ -2,31 +2,37 @@
 # :: READ DATA
 # Reading and cleaning data
 
+setwd("~/Google Drive/Warwick/PhD/Work/WBS/TK/FYWP Data Project/fywp_project")
+
 #sessionInfo()
 library(tidyverse)
+library(readxl) # Read Excel xlsx file
+library(haven) # Read SPSS SAV file
 library(data.table)
 library(openxlsx)
-library(haven) # Read SPSS SAV file
-library(readxl) # Read Excel xlsx file
 library(arsenal) # for comparing dataframes
 
 rm(list=ls())
 
-setwd("~/Google Drive/Warwick/PhD/Work/WBS/TK/fy_2020_dec")
-
+# ==================================================================================================================================
 # Set up file paths
-path_students <- file.path("data_files", "ugrad_students_anonymised_dec20.xlsx")
-path_students_lectures <- file.path("data_files", "ugrad_students_lectures_anonymised_dec20.xlsx")
-path_students_occmarks <- file.path("data_files", "ugrad_students_occmarks_anonym_dec20.xlsx")
-path_students_seminars <- file.path("data_files", "ugrad_students_seminars_anonym_dec20.xlsx")
-path_students_supervisor <- file.path("data_files", "ugrad_students_meetings_anonym_dec20.xlsx")
+path_students <- file.path("data_files", "ugrad_students_Aug22_ID_anonym.xlsx")
+path_students_occmarks <- file.path("data_files", "ugrad_students_occmarks_Aug22_ID_anonym.xlsx")
+path_students_lectures <- file.path("data_files", "ugrad_students_lectures_Aug22_ID_anonym.xlsx")
+path_students_seminars <- file.path("data_files", "ugrad_students_seminars_anonym_dec20.xlsx") ### UPDATE NEW DATA FILE
+path_students_supervisor <- file.path("data_files", "ugrad_students_meetings_Aug22_ID_anonym.xlsx")
 
 # Modules list
-path_modules_list <- file.path("output", "data_modules.csv")
+path_modules_list <- file.path("data_files", "data_modules_list.csv")
 
 # WP and Johnstone data
-path_scholars <- file.path("data_files", "Warwick Scholars_2019_20_anonymised .xlsx")
-path_johnstone <- file.path("data_files", "WBS_TK_Extract_20201202_anonymised.xlsx")
+path_johnstone <- file.path("data_files", "CHECK SITS_TK_Extract for Tina Kiefer 2022_08_10_002_Aug22_ID_anonym.xlsx")
+
+# Scholarships & contextual offers
+path_warwickscholars <- file.path("data_files/scholars", "Warwick Scholars_2019_20_anonymised.xlsx")
+path_scholars <- file.path("data_files/scholars", "Scholarship Overview_Aug22_ID_anonym.xlsx")
+path_contextual <- file.path("data_files/scholars", "WBS Contextual Offers since 2017_Aug22_ID_anonym.xlsx")
+path_fystats <- file.path("data_files/scholars", "21 Cohort Admissions Statistics TK_Aug22_ID_anonym.xlsx")
 
 # Read data in
 d_students <- read_excel(path_students)
@@ -35,15 +41,19 @@ d_lectures <- read_excel(path_students_lectures)
 d_seminars <- read_excel(path_students_seminars)
 d_supervisor <- read_excel(path_students_supervisor)
 
-d_johnstone <- read_excel(path_johnstone)
-d_modules_list <- read.csv(file = path_modules_list ,header = T, stringsAsFactors = F)
+d_modules_list <- read_csv(file = path_modules_list)
 
+d_johnstone <- read_excel(path_johnstone)
+
+d_warwickscholars <- read_excel(path_warwickscholars)
 d_scholars <- read_excel(path_scholars)
+d_contextual <- read_excel(path_contextual)
+d_fystats <- read_excel(path_fystats)
+
 # ------------------------------------------------------------------------------------------------------------
 ## ADD IN MODULE TYPE
 
 # Recode Module Type description
-
 d_modules_list <- d_modules_list %>%
   mutate(
     MODULE_TYPE = recode(MODULE_TYPE, 
@@ -81,7 +91,7 @@ d_students <- d_students %>%
 # FY students who progress to UG have 2 records in the data: (1) their FY year record (2) UG record
 FY_students_is_fy <- d_students %>% filter(IS_FY == 'Y') # Variable supposed to indicate they are an FY student (whether in FY or UG)
 # Issue: some students have IS_FY = YES but are UG, and others have IS_FY = NO but are UG and previously were FY (according to Acronym)  
-d_students %>% filter(ID_anonym==45676949) # Example: FY one year, then on to the next, but doesn't have IS_FY = Y for both records
+  d_students %>% filter(ID_anonym==45676949) # Example: FY one year, then on to the next, but doesn't have IS_FY = Y for both records
 
 # Create a new indicator for FY students (given issues with IS_FY variable)
 # ... identify IDs of students in their FY years
@@ -92,10 +102,9 @@ d_all <- d_students %>%
   mutate(FY_ind = ifelse(ID_anonym %in% fy_id$ID_anonym, 1, 0))
 # Note: FY students will have 2 records: FY year and UG year(s)
 
-length((d_all %>% filter(FY_ind == 1))$ID_anonym) 
-# > 272 records, including both FY year record and UG record
-length(unique((d_all %>% filter(FY_ind == 1))$ID_anonym))
-# > 156 unique FY students
+  length((d_all %>% filter(FY_ind == 1))$ID_anonym)  # > 305 records, including both FY year record and UG record
+  length(unique((d_all %>% filter(FY_ind == 1))$ID_anonym)) # > 173 unique FY students
+
 fy_cohort <- d_all %>% filter(ACRONYM == "FY") %>% group_by(STARTYEAR) %>% tally() %>%ungroup()
 fy_cohort
 # can check for duplicate records after FY year: duplicated((FY_students %>% filter(ACRONYM != "FY"))$ID_anonym) # all false means no duplicates
@@ -123,11 +132,12 @@ d_all <- d_all %>%
 ## FILTER COURSES
 # Only keep those in same programs as FY (Accounting: AF, AFI, AFU; Management: MN, MNI)
 
-fy_courses <- d_all %>% filter(FY_ind == 1) %>% count(ACRONYM) 
+d_all %>% filter(FY_ind == 1) %>% count(ACRONYM)
 # Identify courses FY students do, use these to filter DE students
+
 d_all <- d_all %>% 
-  filter(ACRONYM %in% c('FY', 'MN','MNI', 'MNM', 'AF','AFI', 'AFUPP'))
-# Note: will include 2 different records for FY students for FY and UG
+  filter(ACRONYM %in% c('FY', 'MN','MNI', 'MNF', 'MNM', 'AF','AFI', 'AFUPP'))
+# Note: FY students represented twice (will include 2 different records for (FY and UG)
 
 # ------------------------------------------------------------------------------------------------------------
 ## INDICATOR FOR STUDENTS LEAVING
@@ -136,23 +146,26 @@ d_all <- d_all %>%
   mutate(left_ind = ifelse(STAGE_DESCRIPTION=='Left', 1, 0))
 
 d_all %>% count(FY_ind, left_ind) 
-# > 244 DE left, 28 FY left in either FY or UG years
-
-# ------------------------------------------------------------------------------------------------------------
-## PLACEHOLDER FOR SPREADING DATA IN FUTURE
-# >> in future, can spread to make 1 record for each FY student, by merging FY and UG(FY) datasets; just make the former have a _FY after the name
-#  Add _FY indicator to variables : colnames(FY_students_FY_row)[-1] <- paste0(colnames(FY_students_FY_row)[-1],'_FY')
-
+# > 271 DE left, 34 FY left in either FY or UG years
 
 # ------------------------------------------------------------------------------------------------------------
 ## WARWICK SCHOLARS PROGRAM
 
-d_schol <- d_scholars %>%
-  rename( Warwick_Schol_Prog = `Warwick Scholars Programme`) %>%
-  select(ID_anonym, Warwick_Schol_Prog)
+d_schol_general <- d_scholars %>%
+  rename(Award = `Name of award`) %>%
+  select(ID_anonym, Award)
 
-d_all <- left_join(d_all, d_schol, by = c("ID_anonym" = "ID_anonym"))
-  
+d_schol_warwick <- d_warwickscholars %>%
+  mutate(Award = "Warwick Scholars Programme") %>%
+  select(ID_anonym, Award)
+
+d_schol_all <- rbind(d_schol_general, d_schol_warwick) %>%
+  mutate(scholarship = "Yes")
+
+d_schol_all[duplicated(d_schol_all$ID_anonym),]
+# 3 duplicates: 45163911, 45262667, 45161517
+
+d_all <- left_join(d_all, d_schol_all, by = c("ID_anonym" = "ID_anonym"))
 # ------------------------------------------------------------------------------------------------------------
 
 # Some more general cleaning
@@ -184,18 +197,18 @@ d_all_select <- d_all %>%
 
 # ------------------------------------------------------------------------------------------------------------
 ## SUMMARISE PROGRESS OF FY STUDENTS
-# Older FY students currently have 2 rows / records for FY year and UG year > spread to make 1 row per student with both FY and UG year recorded for each var in question
+# FY students progressed to UG currently have 2 rows / records for FY year and UG year > spread to make 1 row per student with both FY and UG year recorded for each var in question
 FY_students_select_spread <- d_all_select %>%
   filter(FY_ind == 1) %>%
   pivot_wider(names_from = timestamp,
               values_from = c(NATIONALITY, SEX, COUNT_MITIGATING_CIRCUMSTANCES, STARTYEAR, ACRONYM,
                               MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION))
-length(FY_students_select_spread$ID_anonym)
-length(unique(FY_students_select_spread$ID_anonym))
-# ... these should be the same for the spread to have worked properly
+  length(FY_students_select_spread$ID_anonym)
+  length(unique(FY_students_select_spread$ID_anonym))
+  # ... these should be the same for the spread to have worked properly
 
 FY_students_select_spread <- FY_students_select_spread %>%
-  # order columns to get FY variables together and degree variables together
+  # easy way to order columns to get FY variables together and degree variables together
   select(
     ID_anonym,
     #    delay_degree_start,
@@ -208,7 +221,7 @@ FY_students_select_spread <- FY_students_select_spread %>%
 ## SUMMARY DATASETS
 FY_students_summary_full <- FY_students_select_spread
 ## --> dataset with all FY students in both their FY startyear (ACRONYM = FY) and their current stage
-## Note: this does not track students over each year, just FY year and present stage / status
+## Note: this does not track students over each year, just FY year and present stage / status; includes those who might have left
 
 FY_students_summary <- FY_students_select_spread %>%
   group_by(STARTYEAR_FY, STAGE_DESCRIPTION_FY, STATUS_DESCRIPTION_FY, STARTYEAR_degree, STAGE_DESCRIPTION_degree, STATUS_DESCRIPTION_degree) %>%
@@ -218,29 +231,43 @@ FY_students_summary_left <- FY_students_select_spread %>%
   filter(STAGE_DESCRIPTION_FY == "Left" | STAGE_DESCRIPTION_degree == "Left") # Left in FY year OR in UG year
 
 # Export data for checking
-write.xlsx(FY_students_summary_full,'output/FY_students_summary_full.xlsx',row.names = F) # Full dataset of all FY students
-write.xlsx(FY_students_summary,'output/FY_students_summary.xlsx',row.names = F) # Summary dataset of FY student progress
-write.xlsx(FY_students_summary_left,'output/FY_students_summary_left.xlsx',row.names = F) # Summary dataset of all who left
+write.xlsx(FY_students_summary_full,'output/FY_students_summary_full.xlsx',rowNames = F) # Full dataset of all FY students
+write.xlsx(FY_students_summary,'output/FY_students_summary.xlsx',rowNames = F) # Summary dataset of FY student progress
+write.xlsx(FY_students_summary_left,'output/FY_students_summary_left.xlsx',rowNames = F) # Summary dataset of all who left
 
 ## FYI on stage and status meanings
 unique(d_all$CURRENTSTAGE)
+#View(d_all %>% filter(CURRENTSTAGE %in% c('L','T')))
+
 ## Current stage & stage_description:
 # X: completed
 # L: left
-# numbers (1,2,3,4): stage number
+# T: transferred
+# S: suspension
+# numbers (1,2,3,4,5,6): stage number
 
 unique(d_all$CURRENTSTATUS)
+#View(d_all %>% filter(CURRENTSTATUS %in% c('I','O')))
+
 ## Current status & status_description:
 # NS: No show
 # W: forced withdrawn
 # C: voluntarily withdrawn
+# N: Temporarily Withdrawn (TWD)
+
+# J: All work submitted
 # K: All work completed (FY year)
-# L:
+# L: Transferred
 # G: awarded (degree)
 # F: full
-# N: Temporarily Withdrawn (TWD)
+# I: Intercalated
+# O: Visiting student
+
+# 4: UG Resit
 # 5: UG Resit WO Res
+# 6: UG First Sit
 # 7: UG First Sit WO Res
+
 
 # 
 # # NOTE ISSUE: some students' startyear is same for FY and UG degree, others are different
@@ -266,7 +293,7 @@ unique(d_all$CURRENTSTATUS)
 # We need to include only the rewrite marks
 # e.g. student ID = 45257625
 
-d_marks_coded %>% count(OCCASION)
+  d_marks_coded %>% count(OCCASION)
 
 # Create indicator for whether a course has a rewrite, then drop Occasion 1/2 and keep the rewrite only (Occasion 9/10)
 d_marks_coded <- d_marks_coded %>% 
@@ -279,17 +306,22 @@ d_marks_coded <- d_marks_coded %>%
   )
 # Note: when a student has a row with rewrites under both 9 and 10 (very few), this keeps the occasion 10 rather than occasion 9
 
-d_marks_coded %>% count(OCCASION)
+  d_marks_coded %>% count(OCCASION)
 
-# Get average number of modules per year
+## Get average number of modules per year
 
 # Have to only include those in streams in question; but not contained in modules dataset, so need to merge in
 d_acronym <- d_students %>% select(ID_anonym, ACRONYM) %>% distinct()
 
-d_module_ave <- d_marks_coded %>% select(ID_anonym, SCHOOLYEAR, MODULE) %>% 
-  filter(SCHOOLYEAR != "2020-2021") %>% distinct() %>% 
+# If data collection happens part way through the year, then final marks will be artificially lower (they are missing mark inputs) and so must be excluded; rough check by comparing average marks across the years
+check_marksyear <- d_marks_coded %>%
+  group_by(SCHOOLYEAR) %>%
+  summarise(mean_marks = mean(FINAL_MARK))
+
+d_module_ave <- d_marks_coded %>% select(ID_anonym, SCHOOLYEAR, MODULE) %>%
+  filter(SCHOOLYEAR != "2022-2023") %>% distinct() %>% 
   left_join(d_acronym) %>%
-  filter(ACRONYM %in% c("MN", "MNI", "MNM", "AF","AFI","AFU", "AFUPP")) %>% select(-ACRONYM)
+  filter(ACRONYM %in% c("MN", "MNI", 'MNF', "MNM", "AF","AFI","AFU", "AFUPP")) %>% select(-ACRONYM)
 
 d_module_ave %>% 
   group_by(ID_anonym, SCHOOLYEAR) %>% summarise(module_sum = n()) %>% ungroup() %>% # get average per individual per school year
@@ -359,8 +391,6 @@ d_lectures_coded %>% count(SCHOOLYEAR)
 
 # Note:  ACADEMIC_YEAR and SCHOOLYEAR are identical > check: View(d_lectures_coded %>% filter(SCHOOLYEAR != ACADEMIC_YEAR))
 
-### check how different average attendance is overall vs averaged across years
-
 # ------------------------------------------------------------------------------------------------------------
 # SEMINAR ATTENDANCE
 # > from d_seminars
@@ -420,15 +450,9 @@ d_supervisor_ave_spread <-d_supervisor_ave_spread %>%
     incomplete_complete_ratio = incomplete / complete
   )
 
-#### This still needs work
-
-
 # ============================================================================================================
 # ============================================================================================================
 # OUTCOMES FOR FY STUDENTS ----> FY YEAR ONLY
-
-# ------------------------------------------------------------------------------------------------------------
-# Selecting FY students
 
 # Select only FY year (as base to merge)
 d_FY <- d_all %>% filter(
@@ -438,7 +462,7 @@ d_FY <- d_all %>% filter(
   ) 
 d_FY %>% count(STARTYEAR)
 length(d_FY$ID_anonym)
-# Total: 156 students
+# Total: 175 students
 
 # ------------------------------------------------------------------------------------------------------------
 # MARKS
@@ -452,7 +476,7 @@ d_FY_marks <- left_join(d_FY, d_marks_ave, by = c("ID_anonym" = "ID_anonym")) %>
 d_FY_marks <- left_join(d_FY_marks, d_marks_ave_module, by = c("ID_anonym","SCHOOLYEAR"))              
 
 length(unique(d_FY_marks$ID_anonym))
-# 143 students (no shows dropped as have no data on schoolyear or marks)
+# 163 students (no shows dropped as have no data on schoolyear or marks)
 # ------------------------------------------------------------------------------------------------------------
 # LECTURES
 
@@ -492,7 +516,7 @@ length(unique(d_FY_semattend$ID_anonym))
 d_FY_full <- full_join(d_FY_marks, d_FY_lecattend)
 d_FY_full <- full_join(d_FY_full, d_FY_semattend)
 
-    length(unique(d_FY_full$ID_anonym)) # check: 150 students
+    length(unique(d_FY_full$ID_anonym)) # check: 167 students
     unique(d_FY_full$ACRONYM) # check: only FY year
     
     d_FY_full %>% group_by(STAGE_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
@@ -500,7 +524,6 @@ d_FY_full <- full_join(d_FY_full, d_FY_semattend)
     
     # Grouping labels for use in analysis: ID_anonym; SCHOOLYEAR; MODULE_TYPE
 
-# ============================================================================================================
 # ============================================================================================================
 # OUTCOMES FOR UG STUDENTS ----> BOTH FY AND NON-FY, ALL UG YEARS
 
@@ -515,8 +538,7 @@ d_UG <- d_all %>% filter(
     # Issue:  note the issue with FY students' startyear...
     d_UG %>% filter(FY_ind == 1) %>% count(STARTYEAR) # > FY students weighted incorrectly - though happens to be correct for more recent cohorts (i.e. UG year 1 year later than FY year)
     d_UG %>% count(FY_ind)
-    # Total FY: 116. 
-    # Total DE: 3085. Also includes those who left.
+    # Total FY who have some UG marks (not necessarily 3 years): 134
 
 # ------------------------------------------------------------------------------------------------------------
 # MARKS
@@ -539,12 +561,12 @@ d_UG_marks <- left_join(d_UG, d_marks_ave, by = c("ID_anonym" = "ID_anonym")) %>
 #     issue = ifelse(fy_plusone != schoolyear_min, 1,0),
 #   ) %>%
 #   ungroup() %>%
-#   select(ID_anonym, ACRONYM, STARTYEAR, startyear_sub, FY_startyear, fy_plusone, schoolyear_min, issue, issue_sub, schoolyear_sub, SCHOOLYEAR, OVERALL_MARKS)
-# View(d_UG_marks_test)  
+#   select(ID_anonym, ACRONYM, STARTYEAR, startyear_sub, FY_startyear, fy_plusone, schoolyear_min, issue, schoolyear_sub, SCHOOLYEAR, OVERALL_MARKS)
+# View(d_UG_marks_test)
 # 
 # d_UG_marks_test %>% count(STARTYEAR)
 # d_UG_marks_test %>% count(FY_startyear)
-# 
+# # 
 # # Issues: 
 # #..  Notice that FY year 2016-2017 has same UG startyear as FY startyear
 # #..  2 students with startyears later than year after FY year: IDs 45475992 (FY year 2017/18, earliest marks 2019/20), 45369489 (FY year 2018/19, earliest marks 2020/21)
@@ -559,7 +581,7 @@ d_UG_marks <- d_UG_marks %>%
   filter(!(ID_anonym %in% c(45573189, 45566932, 45586482) & SCHOOLYEAR == "2019-2020" )) # drop the year away for 3 students
 
 # GENERATING UG_STARTYEAR 
-year_key <- c(`2015` = "2015-2016", `2016` = "2016-2017", `2017` = "2017-2018", `2018` = "2018-2019", `2019` = "2019-2020", `2020` = "2020-2021", `2021` = "2021-2022")
+year_key <- c(`2015` = "2015-2016", `2016` = "2016-2017", `2017` = "2017-2018", `2018` = "2018-2019", `2019` = "2019-2020", `2020` = "2020-2021", `2021` = "2021-2022", `2022` = "2022-2023", `2023` = "2023-2024")
 
 # Use earliest year of recorded marks as UG start year 
 d_UG_marks <- d_UG_marks %>%
@@ -572,13 +594,12 @@ d_UG_marks <- d_UG_marks %>%
   ) %>% ungroup() %>%
   mutate(
     UG_startyear = recode(as.factor(schoolyear_min), !!!year_key),
-    stream = ifelse(ACRONYM %in% c("MN", "MNI", "MNM"), "MN",
+    stream = ifelse(ACRONYM %in% c("MN", "MNI", "MNF", "MNM"), "MN",
                     ifelse(ACRONYM %in% c("AF","AFI","AFU", "AFUPP"), "AF",
                            ifelse(ACRONYM == "FY", "FY", NA))))
 
 #View(d_UG_marks %>% select(ID_anonym, FY_ind, STARTYEAR, SCHOOLYEAR, schoolyear_min, UG_startyear, stream))
 d_UG_marks <- d_UG_marks %>% select(-schoolyear_sub, -schoolyear_min)
-
 
 # Merge module marks by UG school year and module type
 d_UG_marks <- left_join(d_UG_marks, d_marks_ave_module, by = c("ID_anonym","SCHOOLYEAR")) 
@@ -590,8 +611,8 @@ d_UG_lecattend <- left_join(d_UG, d_lecattend_ave, by = c("ID_anonym" = "ID_anon
 
 d_UG_lecattend <- left_join(d_UG_lecattend, d_lecattend_ave_module, by = c("ID_anonym","SCHOOLYEAR"))              
 
-length(unique((d_UG_lecattend %>% filter(FY_ind == 1))$ID_anonym)) # check: 89
-length(unique((d_UG_lecattend %>% filter(FY_ind == 0))$ID_anonym)) # check: 3081
+length(unique((d_UG_lecattend %>% filter(FY_ind == 1))$ID_anonym)) # check: 96
+length(unique((d_UG_lecattend %>% filter(FY_ind == 0))$ID_anonym)) 
 
 # ------------------------------------------------------------------------------------------------------------
 # SEMINARS
@@ -601,7 +622,7 @@ d_UG_semattend <- left_join(d_UG, d_semattend_ave, by = c("ID_anonym" = "ID_anon
 d_UG_semattend <- left_join(d_UG_semattend, d_semattend_ave_module, by = c("ID_anonym","SCHOOLYEAR"))              
 
 length(unique((d_UG_semattend %>% filter(FY_ind == 1))$ID_anonym)) # check: 113
-length(unique((d_UG_semattend %>% filter(FY_ind == 0))$ID_anonym)) # check: 3081
+length(unique((d_UG_semattend %>% filter(FY_ind == 0))$ID_anonym))
 
 # ------------------------------------------------------------------------------------------------------------
 # FINAL MERGE
@@ -609,14 +630,12 @@ length(unique((d_UG_semattend %>% filter(FY_ind == 0))$ID_anonym)) # check: 3081
 d_UG_full <- full_join(d_UG_marks, d_UG_lecattend)
 d_UG_full <- full_join(d_UG_full, d_UG_semattend)
 
-length(unique(d_UG_full$ID_anonym)) # check: 464 students
+length(unique(d_UG_full$ID_anonym))
 unique(d_UG_full$ACRONYM) # check: no FY years
 
 d_UG_full %>% group_by(STAGE_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
 d_UG_full %>% group_by(STATUS_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
 
-# ============================================================================================================
-# ============================================================================================================
 
 # ============================================================================================================
 # Check the differences in modules across these datasets; not really aligned
@@ -652,10 +671,11 @@ d_UG_full %>% group_by(STATUS_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %
 
 d_full <- bind_rows(d_FY_full, d_UG_full)
 
+# Fill in marks for students across their records
 d_full <- d_full %>%
- group_by(ID_anonym, SCHOOLYEAR) %>%
- fill(c(OVERALL_MARKS, LECATTEND_AVE, SEMATTEND_AVE), .direction = c("downup")) %>% 
- ungroup() %>% 
+  group_by(ID_anonym, SCHOOLYEAR) %>%
+  fill( c(OVERALL_MARKS, LECATTEND_AVE, SEMATTEND_AVE), .direction = c("downup")) %>% 
+  ungroup() %>% 
   group_by(ID_anonym) %>%
   fill(c(UG_startyear, stream), .direction = c("downup")) %>% 
   ungroup()
@@ -667,18 +687,16 @@ unique(d_full$ACRONYM)
 ## DEMOGRAPHICS from Johnstone dataset  - which includes demographics for both FY and DE students
 # Note: WP Indicators in a separate code file, given issues
 
-path_johnstone <- file.path("data_files", "WBS_TK_Extract_20201202_anonymised.xlsx")
-d_johnstone <- read_excel(path_johnstone)
-d_johnstone <- d_johnstone %>% select(
+d_johnstone_select <- d_johnstone %>% select(
   ID_anonym, 
   Gender, Disability, Ethnicity, Intake_Year,
   New_Tariff, Award_Class, Award_Year, 
   # add in IMD Quntile here
   )
-d_full_merge <- left_join(d_full, d_johnstone, by = "ID_anonym")
+d_full_merge <- left_join(d_full, d_johnstone_select, by = "ID_anonym")
 
 # ------------------------------------------------------------------------------------------------------------
 # Write final data file
-write.csv(d_full_merge,'output/data_full_merge.csv',row.names = F)
+write_csv(d_full_merge,'output/data_full_merge.csv')
 # ============================================================================================================
 

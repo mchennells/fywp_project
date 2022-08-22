@@ -31,7 +31,10 @@ d_ <- raw_data %>%
         Gender, Ethnicity, Disability
         )
 
-d_left <- d_ %>% filter(FY_ind == 1, STAGE_DESCRIPTION == "Left", STATUS_DESCRIPTION != "No Show") %>% distinct()
+d_left <- d_ %>% 
+  filter(FY_ind == 1, STAGE_DESCRIPTION == "Left", STATUS_DESCRIPTION != "No Show") %>% 
+  distinct()
+  
   length(d_left$ID_anonym)
   mean(d_left$New_Tariff)
 

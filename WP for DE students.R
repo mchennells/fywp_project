@@ -11,17 +11,23 @@ path_data <- file.path("output", "data_full_merge.csv")
 raw_data <- read.csv(file = path_data ,header = T, stringsAsFactors = F)
 
 
-path_contextual <- file.path("data_files/WP analysis Nov 2021", "WBS Contextual Offers since 2017_with ID_anonym.xlsx")
+path_warwickscholars <- file.path("data_files/scholars", "Warwick Scholars_2019_20_anonymised.xlsx")
+path_scholars <- file.path("data_files/scholars", "Scholarship Overview_Aug22_ID_anonym.xlsx")
+path_contextual <- file.path("data_files/scholars", "WBS Contextual Offers since 2017_Aug22_ID_anonym.xlsx")
+path_fystats <- file.path("data_files/scholars", "21 Cohort Admissions Statistics TK_Aug22_ID_anonym.xlsx")
+
+d_warwickscholars <- read_excel(path_warwickscholars)
+d_scholars <- read_excel(path_scholars)
 d_contextual <- read_excel(path_contextual)
-
-path_warscholars <- file.path("data_files/WP analysis Nov 2021", "Warwick Scholars_2019_20_anonymised.xlsx")
-d_warscholars <- read_excel(path_warscholars)
-
+d_fystats <- read_excel(path_fystats)
 
 # GET LIST OF CONTEXTUAL OFFER / WARWICK SCHOLARS STUDENTS
 # ----------------------------------------------------------------------------------------
-d_context <- d_contextual %>% select(ID_anonym, CAP_UDF1) %>% mutate(ind_c = 1)
-d_warschol <- d_warscholars %>% select(ID_anonym) %>% mutate(ind_s = 1)
+d_warwickscholars <- d_warwickscholars %>% select(ID_anonym) %>% mutate(ind_S_warwickschols = 1)
+d_scholars <- d_scholars %>% select(ID_anonym, 'Name of award') %>% mutate(ind_S_schols = 1)
+d_context <- d_contextual %>% select(ID_anonym, CAP_UDF1) %>% mutate(ind_S_contex = 1)
+
+
 
 d_scholars <- bind_rows(d_context, d_warschol)
 
