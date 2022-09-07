@@ -1,0 +1,52 @@
+---
+title: "fy_2_descriptives_Rmark"
+author: "Matt Chennells"
+date: "2022-08-23"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+suppressPackageStartupMessages({
+  library(tidyverse)
+  library(data.table)
+  library(sjstats)
+  library(pwr)
+  library(openxlsx)
+  library(readxl)
+})
+
+```
+
+
+```{r read_data, echo = FALSE}
+
+rm(list = ls())
+
+
+
+```
+
+
+## FY/WP : DESCRIPTIVE ANALYSIS
+
+Blurb on descriptives
+
+```{r read_data, echo = FALSE}
+
+rm(list = ls())
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

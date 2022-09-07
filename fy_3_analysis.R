@@ -1,6 +1,8 @@
 # FY REPORT
 # 3 :: Analysing FY data for Report presentation
 
+setwd("~/Google Drive/Warwick/PhD/Work/WBS/TK/FYWP Data Project/fywp_project")
+
 #sessionInfo()
 library(tidyverse)
 library(data.table)
@@ -13,14 +15,19 @@ library(openxlsx)
 rm(list=ls())
 
 # ============================================================================================================
-# READ DATA
+# SETUP
+
 path_data <- file.path("output", "data_full_merge.csv")
-raw_data <- read.csv(file = path_data ,header = T, stringsAsFactors = F)
+raw_data <- read_csv(file = path_data)
 # Note: data has multiple rows per student corresponding to FY / UG period, Schoolyear, and Module type, respectively.
 
-path_wp <- file.path("output", "d_wp_final.csv")
-raw_data_wp <- read.csv(file = path_wp ,header = T, stringsAsFactors = F) %>%
-  select(-STAGE_DESCRIPTION, -STATUS_DESCRIPTION)
+path_wp_FY_plusJ <- file.path("output", "d_wp_FY_final_plusJ_220822.csv")
+path_wp_DE <- file.path("output", "d_wp_DE_final_220822.csv")
+
+raw_data_wp_FY_plusJ <- read_csv(file = path_wp_FY_plusJ)
+raw_data_wp_DE <- read_csv(file = path_wp_DE)
+
+fy_courses <- c('FY', 'MN','MNI', 'MNF', 'MNM', 'AF','AFI', 'AFUPP')
 
 # ============================================================================================================
 
@@ -28,7 +35,9 @@ raw_data_wp <- read.csv(file = path_wp ,header = T, stringsAsFactors = F) %>%
 
 # ____________________________________________________
 # Data selection for analysis
-d_ <- raw_data
+d_ <- raw_data %>%
+#  select(-STAGE_DESCRIPTION, -STATUS_DESCRIPTION) %>%
+  filter(ACRONYM %in% fy_courses)
 
     d_ %>% group_by(FY_ind) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
     
@@ -38,27 +47,41 @@ d_ <- raw_data
       distinct() %>%
       count(FY_startyear)
 
+    d_ %>% 
+      filter(ACRONYM == "FY") %>%
+      select(ID_anonym, UG_startyear) %>%
+      distinct() %>%
+      count(UG_startyear)
+    
+    # See all 39 NA, why they are missing
+    View(
+      d_ %>% filter(ACRONYM == "FY", is.na(UG_startyear)) %>%
+        select(ID_anonym, ACRONYM, STAGE_DESCRIPTION, STATUS_DESCRIPTION, STARTYEAR, FY_startyear, UG_startyear) %>%
+        distinct() %>% arrange(STAGE_DESCRIPTION, FY_startyear) 
+         )
+    # 4 have FY year COMPLETED but have no UG year; must have not continued / were no show for UG
+    # 3 are 20/21 FY startyear but still in stage 1, haven't progressed to undergrad, they are RESIT 
+    # 21/22 startyear have no UG marks
+    # Rest left during FY year (no show or withdrawn vol/forced)
+
 # ----------------------------------------------------------------------------------------
-# REMOVE STUDENTS WHO HAVE LEFT
+# FY STUDENTS WHO HAVE LEFT
 # Note: STAGE_DESCRIPTION states current - i.e. not year by year - stage: so students who have left will show this across all their records / rows in our dataset
 
-## Count how many have left
-# ... during FY year
-    d_ %>% filter(ACRONYM == "FY") %>% 
-      select(ID_anonym, FY_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION) %>% distinct() %>% 
-      count(FY_startyear, STATUS_DESCRIPTION)
-      # 12 students (9X withdrawn, 3 x no shows)
+## Students who left during FY year
+    d_ %>% filter(ACRONYM == "FY") %>% select(ID_anonym, FY_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION) %>% distinct() %>% count(STATUS_DESCRIPTION)
+    d_ %>% filter(ACRONYM == "FY") %>% select(ID_anonym, FY_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION) %>% distinct() %>% count(FY_startyear, STATUS_DESCRIPTION)
+      # 16 students (8x forced withdrawn, 4x voluntarily withdrawn, 4 x no shows)
 
-# ... during UG years
+# Some FY students finished their FY year but never started UG or left during UG years
     d_ %>% filter(ACRONYM != "FY") %>% 
       select(ID_anonym, FY_ind, UG_startyear, STAGE_DESCRIPTION) %>% distinct() %>% 
       count(FY_ind, STAGE_DESCRIPTION)
-      # 7 FY students left during UG years
-
-### THIS LOOKS DIFFERENT FROM MY OPENING TABLE IN REPORT ?????
+      # 8 FY students left during UG years
     
 ## Remove those who have left during FY year or UG years
-#    View(d_ %>% filter(FY_ind == 1 & STAGE_DESCRIPTION == "Left")) # Eyeball those who've left
+    
+    #View(d_ %>% filter(FY_ind == 1 & STAGE_DESCRIPTION == "Left")) # Eyeball those who've left
     
     # Issues with using "Left"
     d_ %>% filter(STAGE_DESCRIPTION == "Left") %>% select(ID_anonym, STATUS_DESCRIPTION) %>% distinct() %>% count(STATUS_DESCRIPTION)
@@ -71,8 +94,8 @@ d_ <- d_ %>% filter(
   STAGE_DESCRIPTION != "Left" & 
     !(STATUS_DESCRIPTION %in% c("Voluntarily Withdrawn", "TWD")))
 # Note: 
-# ... (1) this removes the records for x12 FY students and x11 FY students who left during FY and UG years respectively (and obviously those DE students who left during UG year)
-# ... (2) this still keeps the FY year for those FY students who left during UG year (e.g. ID_anonym == 45577875 or 45464177)
+# ... (1) this removes the records for YY FY students and ZZ FY students who left during FY and UG years respectively (and obviously those DE students who left during UG year)
+# ... (2) this still keeps the FY year for those FY students who left during UG years (e.g. ID_anonym == 45577875 or 45464177)
 
 # 11 FY students who passed FY year left during UG year for voluntary / forced withdrawn and 2 no shows
 
@@ -83,6 +106,9 @@ d_ <- d_ %>% filter(
 # ADDITINAL SOME MORE CLEANING TO SELECT RIGHT STUDENTS AND GET CORRECT YEAR COMPARISON GROUP
 
 
+# Some students like 45143577 are still in FY year though they are a year behind; e.g. starting FY in 2020-2021, but repeating it in 2021-2022, with stage UG Resit WO Res, current status = 5
+# >> They won't be included in the marks etc. comparison as they don't have a UG_startyear
+            
 # ----------------------------------------------------------------------------------------
 # ###>> NB Issue with UG marks, 2019/2020 marks are dragging everything down
 # 
@@ -130,9 +156,6 @@ d_ <- d_ %>% filter(
 # ----------------------------------------------------------------------------------------
 # ADDITIONAL CLEANING
 
-# Merge in WP criteria
-d_ <- left_join(d_, raw_data_wp, by = c("ID_anonym", "FY_startyear"))
-
 # Cleaning: remove 1x 2014 schoolyear and the few that are missing
 d_ <- d_ %>% filter(
   SCHOOLYEAR != "2014-2015" & !is.na(SCHOOLYEAR))
@@ -143,10 +166,9 @@ d_ <- d_ %>% filter(
   # 3. Exclude current SCHOOLYEAR as lacks data (marks are only partially captured)
 
 d_ <- d_ %>% filter(
-  UG_startyear %in% c("2016-2017","2017-2018","2018-2019") &
-  !(SCHOOLYEAR %in% c("2020-2021"))
+  UG_startyear %in% c("2016-2017","2017-2018","2018-2019","2020-2021", "2021-2022") &  
+  !(SCHOOLYEAR %in% c("2022-2023"))
   )
-
 # Note: this will still include the marks for the 2019/2020 year, just not for students who began UG in that year
 
 # If still in stage 1 (given year selection above), then there is insufficient data for analysis
@@ -164,7 +186,7 @@ d_ <- d_ %>% mutate(FY = ifelse(FY_ind == 1, "FY","Direct entry"))
 # ----------------------------------------------------------------------------------------
 # STUDENT SUMMARY
 d_stats <- d_ %>% select(ID_anonym,  FY_ind, FY_startyear, UG_startyear) %>% distinct()
-  d_stats %>% count(FY_ind) # 59 FY students (from 3 cohorts) in UG years compared to 1,188 DE students
+  d_stats %>% count(FY_ind) # 102 FY students (from 5 cohorts) in UG years compared to 2,388 DE students
   d_stats %>% count(FY_ind, FY_startyear) # FY students by FY year cohort
   d_stats %>% count(FY_ind, UG_startyear) # FY students by UG year cohort
   # Note: includes the FY years for those who finished FY but then left during FY (in order to calculate FY marks later)
@@ -199,7 +221,7 @@ marks_FYyear_module_year <- d_ %>% filter(ACRONYM == "FY") %>%
 
 # Remove duplicates present from multiple modules by year
 d_marks_UG <- d_ %>% filter(ACRONYM != "FY") %>% 
-  select(ID_anonym, Gender, Ethnicity, FY, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
+  select(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
 
 d_marks_UG %>% select(ID_anonym, FY, FY_startyear, UG_startyear) %>% distinct() %>% count(FY, UG_startyear) 
 
@@ -232,7 +254,7 @@ d_marks_UG %>% select(ID_anonym, FY, FY_startyear, UG_startyear) %>% distinct() 
 
 # Get one average mark per student (i.e. collapse)
 d_marks_UG_collapse <- d_marks_UG %>%
-  group_by(ID_anonym, Gender, Ethnicity, FY, ACRONYM, stream, UG_startyear) %>% 
+  group_by(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, ACRONYM, stream, UG_startyear) %>% 
   summarise( mean_marks = mean(OVERALL_MARKS, na.rm = TRUE)) %>% ungroup()
 
 # 
@@ -269,7 +291,7 @@ d_marks_overall_gen <- d_marks_UG_collapse %>%
 
 # ... by ethnicity
 d_marks_overall_eth <- d_marks_UG_collapse %>% 
-  group_by(FY, Ethnicity) %>% 
+  group_by(FY, Ethnicity_collapse) %>% 
   summarise(
     marks_overall_mean = mean(mean_marks),
     students_sum = n()) %>%
@@ -291,6 +313,19 @@ plot_marks_overall <-  ggplot(
     theme(legend.position = "none")
 plot_marks_overall
 
+plot_marks_overall_startyear <-  ggplot(
+  d_marks_UG_collapse, aes(x=UG_startyear, y=mean_marks, fill = FY)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
+  ylab("Average marks (%)") +
+  xlab("Student entry type") +
+  ggtitle("Average UG Overall marks across all modules") +
+  coord_cartesian(ylim=c(0,80)) +
+  theme_minimal(12) +
+  theme(legend.position = "none")
+plot_marks_overall_startyear
+
 #with(data = d_marks_UG_collapse, wilcox.test(mean_marks ~ FY, paired = FALSE))
 
 plot_marks_overall_stream <-  ggplot(
@@ -305,22 +340,6 @@ plot_marks_overall_stream <-  ggplot(
     theme_minimal(12) 
   #  theme(legend.position = "none")
 plot_marks_overall_stream
-
-# # ... by year starting undergrad degree
-# plot_marks_overall_year <-  ggplot(
-#     d_marks_UG_collapse, aes(x=UG_startyear, y=mean_marks, fill = FY)) + 
-#     stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
-#     stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
-#     stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -1) +
-#     ylab("Average marks (%)") +
-#     xlab("FY Cohort") +
-#     ggtitle("Average UG Overall marks across all modules") +
-#     coord_cartesian(ylim=c(0,80)) +
-#     theme_minimal(12) +
-# #              labs( fill = "Student type") +  # change legend title
-#     theme(legend.title = element_blank()) +
-#     scale_x_discrete(labels=c("Cohort 1","Cohort 2","Cohort 3"))
-# plot_marks_overall_year
 
 
 # ----------------------------------------------------------------------------------------
@@ -947,7 +966,7 @@ plot_mitigating_overall
 
 # ==========================================================================================
 # WIDENING PARTICIPATION => WP_INDEX
-d_WPindex <-raw_data_wp
+d_WPindex <- raw_data_wp
 
 ## WP Index and FY marks
 d_FYonly <- raw_data %>%

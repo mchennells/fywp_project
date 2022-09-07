@@ -7,70 +7,72 @@ library(readxl)
 
 rm(list=ls())
 
-path_data <- file.path("output", "data_full_merge.csv")
-raw_data <- read.csv(file = path_data ,header = T, stringsAsFactors = F)
-
+merged_data <- file.path("output", "data_full_merge.csv")
+raw_merged_data <- read_csv(file = merged_data)
 
 path_warwickscholars <- file.path("data_files/scholars", "Warwick Scholars_2019_20_anonymised.xlsx")
 path_scholars <- file.path("data_files/scholars", "Scholarship Overview_Aug22_ID_anonym.xlsx")
 path_contextual <- file.path("data_files/scholars", "WBS Contextual Offers since 2017_Aug22_ID_anonym.xlsx")
-path_fystats <- file.path("data_files/scholars", "21 Cohort Admissions Statistics TK_Aug22_ID_anonym.xlsx")
 
 d_warwickscholars <- read_excel(path_warwickscholars)
 d_scholars <- read_excel(path_scholars)
 d_contextual <- read_excel(path_contextual)
-d_fystats <- read_excel(path_fystats)
 
-# GET LIST OF CONTEXTUAL OFFER / WARWICK SCHOLARS STUDENTS
+path_johnstone <- file.path("data_files", "CHECK SITS_TK_Extract for Tina Kiefer 2022_08_10_002_Aug22_ID_anonym.xlsx")
+d_johnstone <- read_excel(path_johnstone)
+
 # ----------------------------------------------------------------------------------------
-d_warwickscholars <- d_warwickscholars %>% select(ID_anonym) %>% mutate(ind_S_warwickschols = 1)
-d_scholars <- d_scholars %>% select(ID_anonym, 'Name of award') %>% mutate(ind_S_schols = 1)
-d_context <- d_contextual %>% select(ID_anonym, CAP_UDF1) %>% mutate(ind_S_contex = 1)
+
+d_schol_general <- d_scholars %>%
+  rename(Award = `Name of award`) %>%
+  select(ID_anonym, Award)
+
+d_schol_warwick <- d_warwickscholars %>%
+  mutate(Award = "Warwick Scholars Programme") %>%
+  select(ID_anonym, Award)
+
+# Bind all scholarship types together
+d_schol_all <- rbind(d_schol_general, d_schol_warwick) %>%
+  mutate(Scholarship = "Yes")
 
 
+d_contex <- d_contextual %>%
+  mutate(Context_offer = "Yes") %>%
+  select(ID_anonym, Context_offer)
 
-d_scholars <- bind_rows(d_context, d_warschol)
-
-  length(d_scholars$ID_anonym)
-  length(unique(d_scholars$ID_anonym))
-  # a few duplicates; some contextual offer students were also Warwick scholars (but not all war schols are on contextual list)
-
-d_scholars <- d_scholars %>% mutate(idcheck = duplicated(ID_anonym))
+# Join scholarship and contextual offers together
+# Note: several students with contextual offers also have scholarships
+d_scholandcontex <- full_join(d_schol_all, d_contex, by = c("ID_anonym" = "ID_anonym"))
   
-d_scholars <- d_scholars %>% group_by(ID_anonym) %>% fill(ind_s, .direction = c("downup")) %>% ungroup()
-  
-View(d_scholars %>% mutate(idcheck = duplicated(ID_anonym)))
 
-# Easiest to manually exclude the duplicates
-d_scholars <- d_scholars %>% filter(
-  !(ID_anonym == 45281759 & is.na(ind_c) ) &
-  !(ID_anonym == 45161517 & is.na(ind_c) ) &
-  !(ID_anonym == 45179094 & is.na(ind_c) ) &
-  !(ID_anonym == 45287360 & is.na(ind_c) )
-) %>% select(-idcheck)
+d_scholandcontex[duplicated(d_scholandcontex$ID_anonym),]
+# 3 duplicates who are recorded as having two different scholarships: 45163911, 45262667, 45161517
+d_scholandcontex <- d_scholandcontex %>% mutate(id_check = duplicated(ID_anonym))
 
+# Need to manually remove one or more of these, as will need to merge across later
+# > for now, just manually remove one for each person (will only matter for digging down into data later)
+d_scholandcontex <- d_scholandcontex %>% filter(id_check == FALSE) %>% select(- id_check)
 
-length(d_scholars$ID_anonym)
-d_scholars %>% count(ind_c, ind_s)
-# 58 entries in the list provided: 
-# contextual but not warwick scholar: 47
-# both contextual and warwick scholar: 4
-# not contextual and warwick scholar: 7
-# Total contextual: 51; total warwick scholar: 11
-#note, not all contextual may have taken up Warwick offer / attended --> will not be matched up to data later
+  d_scholandcontex %>% count(Award) # 50 students offered scholarships
+  d_scholandcontex %>% count(Context_offer) # 51 students offered contextual offers (note not all may have taken up, so may not match to data later)
 
-# All Warwick scholars should be contextual, but not the case:
-d_scholars <- d_scholars %>% mutate(ind_cs = ifelse((ind_c == 1 | ind_s == 1),1,0))
-
+# Misc useful functions used here before:
+# d_schol_contex <- d_schol_contex %>% group_by(ID_anonym) %>% fill(Scholarship, .direction = c("downup")) %>% ungroup()
 #colnames(d_schol)[-1] <- paste0(colnames(d_schol)[-1], '_C' )
 
-##  FOLLOWING IS COPY OF WP CHARACTERISTICS OF DE STUDENTS FROM fy_descriptive FILE
+#---------------------------------------------------------------------------------------
+# Export scholarship list
+write_csv(d_scholandcontex,'output/d_scholandcontex.csv')
+#---------------------------------------------------------------------------------------
+
+# ========================================================================================================================
+##  DIRECT ENTRY WP CHARACTERISTICS
 # ========================================================================================================================
 
 # DIRECT ENTRY (DE) STUDENT CHARACTERISTICS
-d_ <- raw_data %>%
+d_DE <- raw_merged_data %>%
   filter(
-#    FY_ind == 0,      # Select only DE students
+    # FY_ind == 0,      # Can select only DE students for more control wrt FY students, but might be useful to have the Johnstone data tacked on as well for those who have it
   ) %>% 
   select(
     ID_anonym, UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION,
@@ -78,38 +80,17 @@ d_ <- raw_data %>%
   ) %>% 
   distinct() # Remove duplicate records (duplicates given schooling years; module types)
 
-  length(d_$ID_anonym)
-  length(unique(d_$ID_anonym))
+  length(d_DE$ID_anonym)
+  length(unique(d_DE$ID_anonym))
   # a few duplicates; in the same year, are both awarded 
-d_ <- d_ %>% mutate(idcheck = duplicated(ID_anonym)) %>% filter(idcheck == FALSE)
 
-# Compare to list of scholars/contextual offers above
-d_check <- d_ %>% filter(ID_anonym %in% d_scholars$ID_anonym)
-d_check_2 <- d_scholars %>% filter(ID_anonym %in% d_$ID_anonym)
-# 46 d_schol students (out of 58) have data
-d_check_3 <- d_ %>% filter(ID_anonym %in% d_warscholars$ID_anonym)
-# All 11 warwick scholars have datas
+d_DE <- d_DE %>% mutate(idcheck = duplicated(ID_anonym)) %>% filter(idcheck == FALSE)
 
-# Merge main data with contextual and warwick scholars indicators
-d_schol <- left_join(d_, d_scholars, by = c("ID_anonym")) %>% select(-idcheck)
-# 46 students have data from Johnstone's database
-
-d_schol <- d_schol %>% select(ID_anonym, CAP_UDF1, ind_c, ind_s, ind_cs)
-write.xlsx(d_schol,'output/ind_sc.xlsx',row.names = F) 
-write.csv(d_schol,'output/ind_sc.csv',row.names = F)
-
-# ----------------------------------------------------------------------------------------
-# IMPORT AND MERGE WP
-
-# Check no duplicates
-length(d_schol$ID_anonym)
-length(unique(d_schol$ID_anonym))
-
-## (1) Johnstone data
-path_johnstone <- file.path("data_files", "WBS_TK_Extract_20201202_anonymised.xlsx")
+#---------------------------------------------------------------------------------------
+## (1) Johnstone's data approach
 d_johnstone <- read_excel(path_johnstone)
 
-d_johnstone <-d_johnstone %>% select(
+d_johnstone_select <- d_johnstone %>% select(
   ID_anonym,
   LowSEC_Flag, LPN_Quintile,
   WP_ALP_Flag, WP_FSM_Flag, WP_GCSE_Flag,
@@ -117,9 +98,8 @@ d_johnstone <-d_johnstone %>% select(
   School_Type
 ) %>% distinct()
 
-d_schol_join <- left_join(d_schol, d_johnstone, by = c("ID_anonym"))
-
-# ## (2) Brian's data!
+#---------------------------------------------------------------------------------------
+# ## (2) Brian's data approach [IGNORE: CODE HERE FOR FUTURE REFERENCE]
 # path_brian <- file.path("data_files/new", "EA Current - WBS FY WP 2020_12_14_005_anonymized.xlsx")
 # d_brian <- read_excel(path_brian)
 # #names(d_brian)
@@ -160,76 +140,50 @@ d_schol_join <- left_join(d_schol, d_johnstone, by = c("ID_anonym"))
 # > Data doesn't uniquely identify students (appears to be POLAR4 variable that is sometimes different)
 # > duplicate == TRUE doesn't lose any NB data, so drop accordingly
 
-# ----------------------------------------------------------------------------------------
-# ALP & GCSE flag combine
 
-d_schol_join <- d_schol_join %>% mutate(
+# ----------------------------------------------------------------------------------------
+# WP CRITERIA GENERATION
+
+# Combine ALP & GCSE flags
+d_johnstone_select <- d_johnstone_select %>% mutate(
   ALP_GCSE = ifelse(WP_ALP_Flag == "Y" | WP_GCSE_Flag == "Y", "Y", 
                     ifelse(is.na(WP_ALP_Flag) & is.na(WP_GCSE_Flag), "NA", "N")
   ))
 
-# ----------------------------------------------------------------------------------------
-# RENAMING
-
-d_wpcount <- d_schol_join
-
-d_wpcount$WP1_InCare_n[d_wpcount$InCare_Flag == "Yes"] <- 1  # students spent time in local authority care
-d_wpcount$WP2_GCSE_both_n[d_wpcount$ALP_GCSE == "Y"] <- 1  # schools with lower than average national performance
-d_wpcount$WP3_FSM_n[d_wpcount$WP_FSM_Flag == "Y"] <- 1  # schools with free school meals
-d_wpcount$WP4_LPN_n[d_wpcount$LPN_Quintile == 1] <- 1  # students from lower participation quintile 1
-d_wpcount$WP5_1stGen_n[d_wpcount$ParentInHE_Flag == "Yes"] <- 1 # Parent in higher education flag
-d_wpcount$wp6_SEC[d_wpcount$LowSEC_Flag == "Y"] <- 1  # Students from Low Socio-Economic Status
-d_wpcount$WP7_IMD[d_wpcount$IMD_Quintile == 1 | d_wpcount$IMD_Quintile == 2] <- 1  # IMD quintile 1 or 2
-
-d_wpcount <- d_wpcount %>%
+# Mirror FY WP criteria, but add '_J' suffix for when join together, so though names are similar we know it's from Johnstone data and not hand coded (and can remove suffix easily)
+d_johnstone_select <- d_johnstone_select %>%
   mutate(
-    wp_sum =  rowSums(dplyr::select(.,
-                                    WP1_InCare_n, WP2_GCSE_both_n, WP3_FSM_n, WP4_LPN_n, WP5_1stGen_n, wp6_SEC, WP7_IMD
+    WP1_InCare_n_J = ifelse(InCare_Flag == "Yes", 1, 0), # students spent time in local authority care
+    WP2_GCSE_both_n_J = ifelse(ALP_GCSE == "Y", 1, 0), # schools with lower than average national performance
+    WP3_FSM_n_J = ifelse(WP_FSM_Flag == "Y", 1, 0), # schools with free school meals
+    WP4_LPN_n_J = ifelse(LPN_Quintile == 1, 1, 0), # students from lower participation quintile 1
+    WP5_1stGen_n_J = ifelse(ParentInHE_Flag == "Yes", 1, 0), # Parent in higher education flag
+    WP6_SEC_J = ifelse(LowSEC_Flag == "Y", 1, 0), # Students from Low Socio-Economic Status
+    WP7_IMD_J = ifelse(IMD_Quintile %in% c(1,2), 1, 0), # IMD quintile 1 or 2
+  )
+
+d_johnstone_select <- d_johnstone_select %>%
+  mutate(
+    wp_sum_J =  rowSums(dplyr::select(.,
+                                    WP1_InCare_n_J, WP2_GCSE_both_n_J, WP3_FSM_n_J, WP4_LPN_n_J, WP5_1stGen_n_J, WP6_SEC_J, WP7_IMD_J
     ), na.rm = TRUE),
-    wp_ind = ifelse(wp_sum >=2, 1,0)
+    wp_ind_J = ifelse(wp_sum_J >=2, 1,0)
     )
 
 # Number of WP criteria
-d_wpcount %>%count(wp_sum)
-d_wpcount %>%count(ind_c, wp_sum)
-d_wpcount %>%count(ind_s, wp_sum)
-d_wpcount %>%count(ind_cs, wp_sum)
+d_johnstone_select %>%count(wp_sum_J)
+d_johnstone_select %>%count(wp_ind_J)
+mean(d_johnstone_select$wp_sum_J, na.rm = TRUE)
+# >> Clearly lots missing...
 
-d_wpcount %>%count(wp_ind)
-d_wpcount %>%count(ind_cs, wp_ind)
-# ind_cs + wp_ind = 236 students, for comparison calculation (Contextual inc. Warwick scholars + DE (non context/ warschol) with wp_ind)
-# Won't use WP sum for Contextual offers or Warwick scholars
+#---------------------------------------------------------------------------------------
+# Select data for export (to be merged in later)
+d_johnstone_export <- d_johnstone_select %>% 
+  select(
+    ID_anonym, IMD_Quintile,
+    WP1_InCare_n_J, WP2_GCSE_both_n_J, WP3_FSM_n_J, WP4_LPN_n_J, WP5_1stGen_n_J, WP6_SEC_J, WP7_IMD_J,
+    wp_sum_J, wp_ind_J
+  )
 
-# Export data
-d_wpcount_export <- d_wpcount %>% select(ID_anonym, CAP_UDF1, ind_c, ind_s, ind_cs, wp_sum, wp_ind)
-
-write.csv(d_wpcount_export,'output/d_wp_export.csv',row.names = F)
-
-
-
-
-# ### FY students and Home students need to be kept out 
-# # ----------------------------------------------------------------------------------------
-# # DROP FY STUDENTS
-# # FY students have their own manual WP input (see wp_fix file) - but need the warwick scholars / provisional indicators
-# 
-# d_DE_schol %>% count(FY_ind)
-# d_DE_schol <- d_DE_schol %>% filter(FY_ind == 0)
-# 
-# d_DE_schol %>% count(ind_c) # 39 contextual offers (from original list, excludes those who didn't get offer and FY students)
-# d_DE_schol %>% count(ind_s) # 6 warwick scholars (means 5 were FY too)
-# d_DE_schol %>% count(ind_c, ind_s) # 
-
-# ----------------------------------------------------------------------------------------
-# HOME (UK) STUDENTS ONLY
-# correct comparison group for FY students; others missing much demographic data 
-# ... (but maybe just take whatever we can get)
-
-# length(d_DE$ID_anonym)
-# d_DE %>% count(FEESTATUS) # H: Home(UK) fees / HE: EU fees / O: Overseas fees
-# d_DE <- d_DE %>% filter(FEESTATUS == "H") # Keep only Home(UK) students
-# # 485 / 3081 = approx. 15.7%
-# 
-# # Composition and size of DE comparison group
-# d_DE %>%count(UG_startyear)  
-# ----------------------------------------------------------------------------------------
+write_csv(d_johnstone_export,'output/d_wp_DE_final_220822.csv')
+#---------------------------------------------------------------------------------------

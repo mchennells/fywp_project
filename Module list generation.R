@@ -49,10 +49,22 @@ write_csv(all_modules, path_modules_EXPORT)
 # The manual coding should have been done on the exported list from above, using the following key:
 # > 1: Numerical/Quantitative/Science/Engineering, 
 # > 2: Social Science/Social Studies, Qualitative, 
-# > 3: Languages 
+# > 3: Arts & Humanities, including Languages 
 # > 4: Others
 
 # Import list of all modules for merging: this name must be manually changed in source file
+path_modules_MANUALCODE <- file.path("data_files", "modules/INPUT_modules_list_MANUALCODE_3_010922.csv") # Dataset of manual coded modules
+modules_list_MANUALCODE <- read_csv(file = path_modules_MANUALCODE)
+modules_list_MANUALCODE <- modules_list_MANUALCODE %>% select(MODULE, MODULE_TITLE, MODULE_TYPE)
+modules_list_MANUALCODE <- unique(modules_list_MANUALCODE)
+length(modules_list_MANUALCODE$MODULE)
+
+
+
+
+# ------------------------------------------------------------------------------------------------------------------------
+# !!! Only complete this section if the above Module list is not fully coded
+
 path_modules_MANUALCODE_1 <- file.path("data_files", "modules/INPUT_modules_list_MANUALCODE_1.csv") # Dataset of manual coded modules
 modules_list_MANUALCODE_1 <- read_csv(file = path_modules_MANUALCODE_1) %>% 
   select(MODULE, MODULE_TITLE, MODULE_TYPE)
@@ -65,7 +77,7 @@ modules_list_MANUALCODE_2 <- read_csv(file = path_modules_MANUALCODE_2) %>%
 modules_list_MANUALCODE_2 <- unique(modules_list_MANUALCODE_2)
 length(modules_list_MANUALCODE_2$MODULE)
 
-# >> Do the above for each new list of manually coded (i.e. each time have to update)
+# >> Add new code above for each new list of manually coded (i.e. each time have to update)
 
 # Bind together manually coded modules
 modules_list_INPUTS <- rbind(modules_list_MANUALCODE_1, modules_list_MANUALCODE_2)
@@ -87,6 +99,8 @@ all_modules <- left_join(all_modules, modules_list_INPUTS, by = c('MODULE', 'MOD
 # Partial coded, for reference
 path_modules_list_PARTIAL <- file.path("data_files", "modules/OUTPUT_modules_list_PARTIALCODED.csv")
 write_csv((all_modules %>% arrange(MODULE, MODULE_TITLE, MODULE_TYPE)),path_modules_list_PARTIAL)
+# ------------------------------------------------------------------------------------------------------------------------
+
 # ==================================================================================================================================
 ## CHECK FOR ANY MISSING CODES
 

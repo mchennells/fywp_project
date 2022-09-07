@@ -19,7 +19,7 @@ rm(list=ls())
 path_students <- file.path("data_files", "ugrad_students_Aug22_ID_anonym.xlsx")
 path_students_occmarks <- file.path("data_files", "ugrad_students_occmarks_Aug22_ID_anonym.xlsx")
 path_students_lectures <- file.path("data_files", "ugrad_students_lectures_Aug22_ID_anonym.xlsx")
-path_students_seminars <- file.path("data_files", "ugrad_students_seminars_anonym_dec20.xlsx") ### UPDATE NEW DATA FILE
+path_students_seminars <- file.path("data_files", "ugrad_students_seminars_Aug22_ID_anonym.xlsx")
 path_students_supervisor <- file.path("data_files", "ugrad_students_meetings_Aug22_ID_anonym.xlsx")
 
 # Modules list
@@ -27,12 +27,6 @@ path_modules_list <- file.path("data_files", "data_modules_list.csv")
 
 # WP and Johnstone data
 path_johnstone <- file.path("data_files", "CHECK SITS_TK_Extract for Tina Kiefer 2022_08_10_002_Aug22_ID_anonym.xlsx")
-
-# Scholarships & contextual offers
-path_warwickscholars <- file.path("data_files/scholars", "Warwick Scholars_2019_20_anonymised.xlsx")
-path_scholars <- file.path("data_files/scholars", "Scholarship Overview_Aug22_ID_anonym.xlsx")
-path_contextual <- file.path("data_files/scholars", "WBS Contextual Offers since 2017_Aug22_ID_anonym.xlsx")
-path_fystats <- file.path("data_files/scholars", "21 Cohort Admissions Statistics TK_Aug22_ID_anonym.xlsx")
 
 # Read data in
 d_students <- read_excel(path_students)
@@ -45,11 +39,6 @@ d_modules_list <- read_csv(file = path_modules_list)
 
 d_johnstone <- read_excel(path_johnstone)
 
-d_warwickscholars <- read_excel(path_warwickscholars)
-d_scholars <- read_excel(path_scholars)
-d_contextual <- read_excel(path_contextual)
-d_fystats <- read_excel(path_fystats)
-
 # ------------------------------------------------------------------------------------------------------------
 ## ADD IN MODULE TYPE
 
@@ -57,7 +46,7 @@ d_fystats <- read_excel(path_fystats)
 d_modules_list <- d_modules_list %>%
   mutate(
     MODULE_TYPE = recode(MODULE_TYPE, 
-                         `1` = "Numeric", `2` = "Social studies", `3` = "Other", `4` = "Unknown")
+                         `1` = "Numeric", `2` = "Social studies", `3` = "Arts & Humanities", `4` = "Other")
   )
 
 # ... Merge module type and : MARKS
@@ -81,9 +70,9 @@ d_seminars_coded$MODULE_TYPE <- ifelse(is.na(d_seminars_coded$MODULE_TYPE), "Unk
 # ------------------------------------------------------------------------------------------------------------
 ## REMOVE UNNECESSARY VARIABLES
 
-d_students <- d_students %>% 
+d_all <- d_students %>% 
   select(!c(
-    IS_INTERCALATED, STU_NATC, DSB_CODE, YEAR_OF_BIRTH, UNIVCODE, ACRONYM_TITLE, 
+    IS_INTERCALATED, STU_NATC, DSB_CODE, YEAR_OF_BIRTH, UNIVCODE, 
   ))
 
 # ------------------------------------------------------------------------------------------------------------
@@ -96,9 +85,10 @@ FY_students_is_fy <- d_students %>% filter(IS_FY == 'Y') # Variable supposed to 
 # Create a new indicator for FY students (given issues with IS_FY variable)
 # ... identify IDs of students in their FY years
 fy_id <- d_students %>% filter(ACRONYM == 'FY') 
+
 # Dataset of record of students in their FY year > use ID from Acronym to identify both records for FY students in full dataset which students are / have been FY, given the issue in the above IS_FY variable
 # ... use IDs to identify records in UG years too
-d_all <- d_students %>% 
+d_all <- d_all %>% 
   mutate(FY_ind = ifelse(ID_anonym %in% fy_id$ID_anonym, 1, 0))
 # Note: FY students will have 2 records: FY year and UG year(s)
 
@@ -127,18 +117,40 @@ d_all <- d_all %>%
   group_by(ID_anonym) %>% 
   fill(FY_startyear) %>%     # Within variable, fill missings with FY year
   ungroup()
+# Note that FY_startyear and Intake Year are the same
 
 # ------------------------------------------------------------------------------------------------------------
 ## FILTER COURSES
-# Only keep those in same programs as FY (Accounting: AF, AFI, AFU; Management: MN, MNI)
+# Want to keep enough students for the demographic comparison, but not everyone - and remove here to reduce computational needs for the calculations to follow
 
-d_all %>% filter(FY_ind == 1) %>% count(ACRONYM)
-# Identify courses FY students do, use these to filter DE students
+course_filter <- d_all %>% select(ID_anonym, FY_ind, ACRONYM, ACRONYM_TITLE) %>% distinct() %>% arrange(ACRONYM)
+  
+course_filter <- course_filter %>% 
+  filter(ACRONYM != "FY") %>%
+  count(FY_ind, ACRONYM, ACRONYM_TITLE) %>% 
+  pivot_wider(names_from = FY_ind, values_from = n) %>%
+  rename("Non-FY students" = `0`, "FY students" = `1`)
 
-d_all <- d_all %>% 
-  filter(ACRONYM %in% c('FY', 'MN','MNI', 'MNF', 'MNM', 'AF','AFI', 'AFUPP'))
-# Note: FY students represented twice (will include 2 different records for (FY and UG)
+write.xlsx(course_filter,'output/course_tally.xlsx',rowNames = F)
 
+# Identify courses FY students do, use these as a guide to filter DE students
+  d_all %>% filter(FY_ind == 1) %>% count(ACRONYM)
+
+# Only keep students from certain for analysis >> look for data file like course_tally_input and manually insert the codes below
+d_all <- d_all %>%
+  mutate(
+    stream = ifelse(ACRONYM %in% c('MN', 'MND', 'MNDI', 'MNE', 'MNEI', 'MNF', 'MNFI', 'MNI', 'MNM', 'MNMI', 'MNUPP'), 'MN',    # BSc Management + pathways
+                    ifelse(ACRONYM %in% c('AF','AFI','AFU', 'AFUPP'), 'AF',    # BSc Accounting and Finance + pathways
+                           ifelse(ACRONYM %in% c('IM', 'IMD', 'IME', 'IMF', 'IMM', 'IN'), 'IM',    # International Management and International Business; 4-yr degrees
+                                  ifelse(ACRONYM == 'FY', 'FY', NA))))
+  ) %>%
+  filter(stream %in% c('FY', 'MN', 'AF', 'IM'))
+  # Note: FY students represented twice (will include 2 different records for (FY and UG)
+
+  d_all %>% count(stream)
+  print(d_all %>% count(ACRONYM), n = 50)
+  length(unique((d_all %>% filter(FY_ind == 1))$ID_anonym)) # > still 173 unique FY students
+  
 # ------------------------------------------------------------------------------------------------------------
 ## INDICATOR FOR STUDENTS LEAVING
 # Indicator for students who have left - during FY year OR during UG (see Acronym label for which)
@@ -148,24 +160,6 @@ d_all <- d_all %>%
 d_all %>% count(FY_ind, left_ind) 
 # > 271 DE left, 34 FY left in either FY or UG years
 
-# ------------------------------------------------------------------------------------------------------------
-## WARWICK SCHOLARS PROGRAM
-
-d_schol_general <- d_scholars %>%
-  rename(Award = `Name of award`) %>%
-  select(ID_anonym, Award)
-
-d_schol_warwick <- d_warwickscholars %>%
-  mutate(Award = "Warwick Scholars Programme") %>%
-  select(ID_anonym, Award)
-
-d_schol_all <- rbind(d_schol_general, d_schol_warwick) %>%
-  mutate(scholarship = "Yes")
-
-d_schol_all[duplicated(d_schol_all$ID_anonym),]
-# 3 duplicates: 45163911, 45262667, 45161517
-
-d_all <- left_join(d_all, d_schol_all, by = c("ID_anonym" = "ID_anonym"))
 # ------------------------------------------------------------------------------------------------------------
 
 # Some more general cleaning
@@ -182,8 +176,6 @@ d_all <- d_all %>%
   )
 #  %>% select(-FEESTATUS, -FEESTATUS_DESCRIPTION, -STU_NATC, -DSB_CODE, -YEAR_OF_BIRTH)   # Remove unnecessary variables
 
-### SOME TARIFFS TO FIX WHICH ARE MISSING
-
 d_all_select <- d_all %>% 
   select(ID_anonym, 
          FY_ind,
@@ -192,7 +184,7 @@ d_all_select <- d_all %>%
          COUNT_MITIGATING_CIRCUMSTANCES, 
          timestamp,
          STARTYEAR, 
-         ACRONYM, MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION
+         ACRONYM, stream, MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION
   )
 
 # ------------------------------------------------------------------------------------------------------------
@@ -201,7 +193,7 @@ d_all_select <- d_all %>%
 FY_students_select_spread <- d_all_select %>%
   filter(FY_ind == 1) %>%
   pivot_wider(names_from = timestamp,
-              values_from = c(NATIONALITY, SEX, COUNT_MITIGATING_CIRCUMSTANCES, STARTYEAR, ACRONYM,
+              values_from = c(NATIONALITY, SEX, COUNT_MITIGATING_CIRCUMSTANCES, STARTYEAR, ACRONYM, stream,
                               MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION))
   length(FY_students_select_spread$ID_anonym)
   length(unique(FY_students_select_spread$ID_anonym))
@@ -213,8 +205,8 @@ FY_students_select_spread <- FY_students_select_spread %>%
     ID_anonym,
     #    delay_degree_start,
     STARTYEAR_FY, STARTYEAR_degree,
-    NATIONALITY_FY, SEX_FY, COUNT_MITIGATING_CIRCUMSTANCES_FY, ACRONYM_FY, MAXSTAGE_FY, CURRENTSTAGE_FY, STAGE_DESCRIPTION_FY, CURRENTSTATUS_FY, STATUS_DESCRIPTION_FY,
-    NATIONALITY_degree, SEX_degree, COUNT_MITIGATING_CIRCUMSTANCES_degree, ACRONYM_degree, MAXSTAGE_degree, CURRENTSTAGE_degree, STAGE_DESCRIPTION_degree, CURRENTSTATUS_degree, STATUS_DESCRIPTION_degree
+    NATIONALITY_FY, SEX_FY, COUNT_MITIGATING_CIRCUMSTANCES_FY, ACRONYM_FY, stream_FY, MAXSTAGE_FY, CURRENTSTAGE_FY, STAGE_DESCRIPTION_FY, CURRENTSTATUS_FY, STATUS_DESCRIPTION_FY,
+    NATIONALITY_degree, SEX_degree, COUNT_MITIGATING_CIRCUMSTANCES_degree, ACRONYM_degree, stream_degree, MAXSTAGE_degree, CURRENTSTAGE_degree, STAGE_DESCRIPTION_degree, CURRENTSTATUS_degree, STATUS_DESCRIPTION_degree
   )
 
 # ------------------------------------------------------------------------------------------------------------
@@ -273,7 +265,7 @@ unique(d_all$CURRENTSTATUS)
 # # NOTE ISSUE: some students' startyear is same for FY and UG degree, others are different
 # # > assume FY year is correct - but what about those who take a break between?
 # FY_students_startyear <- FY_students_select_spread %>%
-#   select(ID_anonym, ACRONYM_FY, STARTYEAR_FY, ACRONYM_degree, STARTYEAR_degree, STAGE_DESCRIPTION_FY, STAGE_DESCRIPTION_degree)
+#   select(ID_anonym, ACRONYM_FY, stream_FY, STARTYEAR_FY, ACRONYM_degree, stream_degree, STARTYEAR_degree, STAGE_DESCRIPTION_FY, STAGE_DESCRIPTION_degree)
 # write.xlsx(FY_students_startyear,'output/FY_students_startyear.xlsx',row.names = F) # Dataset of year start to check discrepancies
 # 
 
@@ -281,8 +273,6 @@ unique(d_all$CURRENTSTATUS)
 # ============================================================================================================
 # GENERATE ACADEMIC OUTCOMES
 # ============================================================================================================
-
-
 
 # ------------------------------------------------------------------------------------------------------------
 # CLEAN MARKS DATA FOR REWRITES
@@ -308,6 +298,7 @@ d_marks_coded <- d_marks_coded %>%
 
   d_marks_coded %>% count(OCCASION)
 
+# ----
 ## Get average number of modules per year
 
 # Have to only include those in streams in question; but not contained in modules dataset, so need to merge in
@@ -319,9 +310,9 @@ check_marksyear <- d_marks_coded %>%
   summarise(mean_marks = mean(FINAL_MARK))
 
 d_module_ave <- d_marks_coded %>% select(ID_anonym, SCHOOLYEAR, MODULE) %>%
-  filter(SCHOOLYEAR != "2022-2023") %>% distinct() %>% 
+  filter(SCHOOLYEAR != "2022-2023") %>% distinct() %>%  # Change year here for partially recorded marks
   left_join(d_acronym) %>%
-  filter(ACRONYM %in% c("MN", "MNI", 'MNF', "MNM", "AF","AFI","AFU", "AFUPP")) %>% select(-ACRONYM)
+  filter(ACRONYM %in% d_all$ACRONYM) %>% select(-ACRONYM)
 
 d_module_ave %>% 
   group_by(ID_anonym, SCHOOLYEAR) %>% summarise(module_sum = n()) %>% ungroup() %>% # get average per individual per school year
@@ -361,8 +352,7 @@ d_marks_ave_module <- d_marks_coded %>%
 # Note: ultimately, overall average, will be average or each year's average, rather than total average. This seems fine.
 
 d_lectures_coded <- d_lectures_coded %>%
-  mutate(lecattend_ind = ifelse(d_lectures_coded$ATTENDANCE == "Y", 1 , 0)
-         )
+  mutate(lecattend_ind = ifelse(d_lectures_coded$ATTENDANCE == "Y", 1 , 0))
 
 # Average lecture attendance 
 # ... by year
@@ -462,7 +452,7 @@ d_FY <- d_all %>% filter(
   ) 
 d_FY %>% count(STARTYEAR)
 length(d_FY$ID_anonym)
-# Total: 175 students
+# Total: 173 students
 
 # ------------------------------------------------------------------------------------------------------------
 # MARKS
@@ -538,7 +528,7 @@ d_UG <- d_all %>% filter(
     # Issue:  note the issue with FY students' startyear...
     d_UG %>% filter(FY_ind == 1) %>% count(STARTYEAR) # > FY students weighted incorrectly - though happens to be correct for more recent cohorts (i.e. UG year 1 year later than FY year)
     d_UG %>% count(FY_ind)
-    # Total FY who have some UG marks (not necessarily 3 years): 134
+    # Total FY who have some UG marks (not necessarily 3 years): 132
 
 # ------------------------------------------------------------------------------------------------------------
 # MARKS
@@ -583,7 +573,7 @@ d_UG_marks <- d_UG_marks %>%
 # GENERATING UG_STARTYEAR 
 year_key <- c(`2015` = "2015-2016", `2016` = "2016-2017", `2017` = "2017-2018", `2018` = "2018-2019", `2019` = "2019-2020", `2020` = "2020-2021", `2021` = "2021-2022", `2022` = "2022-2023", `2023` = "2023-2024")
 
-# Use earliest year of recorded marks as UG start year 
+# Use earliest year of recorded marks as UG start year (from above: have already filtered out FY years)
 d_UG_marks <- d_UG_marks %>%
   mutate(
     schoolyear_sub = as.numeric(str_sub(SCHOOLYEAR, 0, 4)),
@@ -594,9 +584,10 @@ d_UG_marks <- d_UG_marks %>%
   ) %>% ungroup() %>%
   mutate(
     UG_startyear = recode(as.factor(schoolyear_min), !!!year_key),
-    stream = ifelse(ACRONYM %in% c("MN", "MNI", "MNF", "MNM"), "MN",
-                    ifelse(ACRONYM %in% c("AF","AFI","AFU", "AFUPP"), "AF",
-                           ifelse(ACRONYM == "FY", "FY", NA))))
+    # stream = ifelse(ACRONYM %in% c("MN", "MNI", "MNF", "MNM"), "MN",
+    #                 ifelse(ACRONYM %in% c("AF","AFI","AFU", "AFUPP"), "AF",
+    #                        ifelse(ACRONYM == "FY", "FY", NA)))
+    )
 
 #View(d_UG_marks %>% select(ID_anonym, FY_ind, STARTYEAR, SCHOOLYEAR, schoolyear_min, UG_startyear, stream))
 d_UG_marks <- d_UG_marks %>% select(-schoolyear_sub, -schoolyear_min)
@@ -647,13 +638,6 @@ d_UG_full %>% group_by(STATUS_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %
 
 
 
-
-#############################################
-# Merge: Scholarship
-#############################################
-# FY_students_marks <- merge(FY_students_marks, dataset_MSP_DSP[,c('ID_anonym','Scholarship Received')], by.x = "ID_anonym", by.y = "ID_anonym", all.x = TRUE)
-# nonFY_students_marks <- merge(nonFY_students_marks, dataset_MSP_DSP[,c('ID_anonym','Scholarship Received')], by.x = "ID_anonym",by.y = "ID_anonym", all.x = TRUE)
-
 #############################################
 # Merge: A-Level Grades
 #############################################
@@ -693,7 +677,25 @@ d_johnstone_select <- d_johnstone %>% select(
   New_Tariff, Award_Class, Award_Year, 
   # add in IMD Quntile here
   )
+
 d_full_merge <- left_join(d_full, d_johnstone_select, by = "ID_anonym")
+
+unique(d_full_merge$Ethnicity)
+
+d_full_merge <- d_full_merge %>%
+  mutate(
+    Ethnicity_collapse =
+      ifelse(Ethnicity %in% c("Arab"), "Arab",
+             ifelse(Ethnicity %in% c("Asian - Bangladeshi or Bangladeshi British", "Asian - Indian or Indian British", "Asian - Pakistani or Pakistani British", "Any other Asian Background"), "Asian",
+                    ifelse(Ethnicity %in% c("Black  - African or African British", "Black - Caribbean or Caribbean British", "Any other Black Background"), "Black",
+                           ifelse(Ethnicity %in% c("Asian - Chinese or Chinese British"), "Chinese",
+                                  ifelse(Ethnicity %in% c("Mixed or multiple ethnic groups - White or White British and Asian or Asian British","Mixed or multiple ethnic groups - White or White British and Black African or Black African British","Mixed or multiple ethnic groups - White or White British and Black Caribbean or Black Caribbean British", "Any other Mixed or Multiple ethnic background"), "Mixed",
+                                         ifelse(Ethnicity %in% c("White", "White - English, Scottish, Welsh, Northern Irish or British", "White - Irish", "Any other White Background"), "White", 
+                                                Ethnicity
+                                         )))))))
+  # Left as is: Any other ethnic background; Prefer not to say / Information refused
+
+d_full_merge %>% count(Ethnicity_collapse)
 
 # ------------------------------------------------------------------------------------------------------------
 # Write final data file
