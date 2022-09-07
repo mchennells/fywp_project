@@ -17,7 +17,7 @@ rm(list=ls())
 # "WPcriteria cohort 2 and 3 + 20 + 21.xlsx" is a combo of 
 # :: "WPcriteria cohort 2 and 3_WBS_anonymized_fixed mistake160221.xlsx" & "Final FY selection decision_2020" & "21 Cohort Admissions Statistics TK_Aug22_ID_anonym"
 
-path_wp_handcode <- file.path("data_files/wp files", "WP_criteria_cohort 2 and 3 + 20 + 21.xlsx")
+path_wp_handcode <- file.path("data_files/FY_WP files", "WP_criteria_cohort 2 and 3 + 20 + 21.xlsx")
 d_wp_handcode <- read_excel(path_wp_handcode)
   length(d_wp_handcode$ID_anonym)
   length(unique(d_wp_handcode$ID_anonym))
@@ -26,16 +26,18 @@ d_wp_handcode <- read_excel(path_wp_handcode)
   
 # ------------------------------------------------------------------------------------------------------------
 # Those students from 2016 onwards who do NOT have data in the above TK handcoded files
-path_wp_original <- file.path("data_files/wp files", "WP from WBS_2016_2020_anonymous.xlsx")
+path_wp_original <- file.path("data_files/FY_WP files", "WP from WBS_2016_2020_anonymous.xlsx")
 d_wp_original <- read_excel(path_wp_original)
 d_wp_original <- d_wp_original %>% select(-comment, -WP_SUM, -WP_SUM_with_awards)
-length(d_wp_original$ID_anonym)
-length(unique(d_wp_original$ID_anonym))
+  
+  length(d_wp_original$ID_anonym)
+  length(unique(d_wp_original$ID_anonym))
 
 # Remove those who are in this list but who already have better handcoded data above
 d_wp_original_drop <- d_wp_original %>% filter(!(ID_anonym %in% d_wp_handcode$ID_anonym))
-length(d_wp_original_drop$ID_anonym)
-length(unique(d_wp_original_drop$ID_anonym))
+  
+  length(d_wp_original_drop$ID_anonym)
+  length(unique(d_wp_original_drop$ID_anonym))
 
 # Bind datasets together (updated IDs with older IDs that weren't updated)
 d_wp_updated <- bind_rows(d_wp_handcode, d_wp_original_drop)
@@ -56,16 +58,16 @@ d_ID <- raw_data_full %>%
   distinct()
 
 # Drop No-Shows for FY year, who don't have any data (those who didn't show up to FY year; but keeps those who completed FY year but were no show for UG (x2))
-d_ID %>% count(STATUS_DESCRIPTION)
+  d_ID %>% count(STATUS_DESCRIPTION)
 d_ID <- d_ID %>% filter(STATUS_DESCRIPTION != "No Show")
-length(d_ID$ID_anonym) # 163 students
+  length(d_ID$ID_anonym) # 163 students
 
 # ============================================================================================================
 # Merge WP Indicators with IDs
 d_wp_one <- left_join(d_ID, d_wp_updated, by = "ID_anonym")
 
-# ------------------------------------------------------------------------------------------------------------
-# COHORT 1 DATA
+# ============================================================================================================
+# Add in data for COHORT 1 DATA
 # If FY cohort year is 2015-2016 Cohort 1, thus missing in Tina's handmade data... 
 # ... OR if Tina's flag data is missing ...
 # then, replace with data from Johnstone Updated Dataset (which only includes data on FY students)
@@ -139,7 +141,7 @@ d_wp_three <- d_wp_two %>%
 # Note: LPN quintile variable very close to Polar3 variable (though not exact); Tina LPN flag usually when LPN quintile = 1 but doesn't track perfectly
 # Quintile 1 shows the lowest rate of participation. Quintile 5 shows the highest rate of participation.
 
-# ------------------------------------------------------------------------------------------------------------
+# ============================================================================================================
 # Get WP Sum + Index
 # wp_index:  low <= 2; 3 <= high
 
@@ -155,7 +157,7 @@ d_wp_four <- d_wp_three %>%
   ) %>% 
   select(- STAGE_DESCRIPTION, - STATUS_DESCRIPTION)
 
-# ------------------------------------------------------------------------------------------------------------
+# ============================================================================================================
 # Dataset for export
 d_wp_final <- d_wp_four %>% 
   select(ID_anonym, FY_startyear,

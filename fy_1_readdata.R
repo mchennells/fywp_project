@@ -39,35 +39,10 @@ d_modules_list <- read_csv(file = path_modules_list)
 
 d_johnstone <- read_excel(path_johnstone)
 
-# ------------------------------------------------------------------------------------------------------------
-## ADD IN MODULE TYPE
-
-# Recode Module Type description
-d_modules_list <- d_modules_list %>%
-  mutate(
-    MODULE_TYPE = recode(MODULE_TYPE, 
-                         `1` = "Numeric", `2` = "Social studies", `3` = "Arts & Humanities", `4` = "Other")
-  )
-
-# ... Merge module type and : MARKS
-d_marks_coded <- merge(d_marks , d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
-count(d_marks_coded,MODULE_TYPE) 
-# If NAs present, means the module list MANUAL CODE is not up to date; set as Unknown for now
-d_marks_coded$MODULE_TYPE <- ifelse(is.na(d_marks_coded$MODULE_TYPE), "Unknown",d_marks_coded$MODULE_TYPE) 
-
-# ... Merge module type and : LECTURE ATTENDANCE
-d_lectures_coded <- merge(d_lectures , d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
-d_lectures_coded$MODULE_TYPE <- ifelse(is.na(d_lectures_coded$MODULE_TYPE), "Unknown",d_lectures_coded$MODULE_TYPE) 
-
-# ... Merge module type and : SEMINAR ATTENDANCE
-d_seminars_coded <- merge(d_seminars , d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
-d_seminars_coded$MODULE_TYPE <- ifelse(is.na(d_seminars_coded$MODULE_TYPE), "Unknown",d_lectures_coded$MODULE_TYPE) 
-
 # ============================================================================================================
 # SAMPLE SELECTION AND CLEANING
 # ============================================================================================================
 
-# ------------------------------------------------------------------------------------------------------------
 ## REMOVE UNNECESSARY VARIABLES
 
 d_all <- d_students %>% 
@@ -105,7 +80,7 @@ fy_cohort
 # ... most FY students have their STARTYEAR (for undergrad) as their FY year, but some don't. Create new variable using FY startyear as the basis (i.e. assume STARTYEAR for FY year is correct). Assume DE students' start years are correct.
 # ... and assume SCHOOLYEAR variable which identifies marks by year is correct; so academic outcomes calculated below are correct for the year in question.
 
-# ## Edit this piece of code to show issues described above
+# ## This piece of code shows the issues described above
 # d_all %>% group_by(FY_ind) %>% tally() %>% ungroup() 
 # d_all %>% group_by(FY_ind, STARTYEAR.FY.) %>% tally() %>% ungroup() 
 # d_all %>% group_by(FY_ind, STARTYEAR) %>% tally() %>% ungroup()  
@@ -131,7 +106,7 @@ course_filter <- course_filter %>%
   pivot_wider(names_from = FY_ind, values_from = n) %>%
   rename("Non-FY students" = `0`, "FY students" = `1`)
 
-write.xlsx(course_filter,'output/course_tally.xlsx',rowNames = F)
+write.xlsx(course_filter,'output/course_tally.xlsx',rowNames = F) # For manual inspection
 
 # Identify courses FY students do, use these as a guide to filter DE students
   d_all %>% filter(FY_ind == 1) %>% count(ACRONYM)
@@ -152,30 +127,25 @@ d_all <- d_all %>%
   length(unique((d_all %>% filter(FY_ind == 1))$ID_anonym)) # > still 173 unique FY students
   
 # ------------------------------------------------------------------------------------------------------------
-## INDICATOR FOR STUDENTS LEAVING
-# Indicator for students who have left - during FY year OR during UG (see Acronym label for which)
-d_all <- d_all %>% 
-  mutate(left_ind = ifelse(STAGE_DESCRIPTION=='Left', 1, 0))
-
-d_all %>% count(FY_ind, left_ind) 
-# > 271 DE left, 34 FY left in either FY or UG years
-
-# ------------------------------------------------------------------------------------------------------------
-
-# Some more general cleaning
+# More general cleaning
 d_all <- d_all %>%
   mutate(
+    left_ind = ifelse(STAGE_DESCRIPTION=='Left', 1, 0), # Indicator for students who have left - during FY year OR during UG (see Acronym label for which)
+    timestamp = ifelse(ACRONYM == "FY", "FY", "degree"),
     SEX = replace_na(SEX, "unknown"),
     SEX = ifelse(ID_anonym == 45464177, "M", SEX),   # manually change sex of those with issues
     NATIONALITY = replace_na(NATIONALITY, "unknown"),
     NATIONALITY = ifelse(   # manually change nationality
       ID_anonym == 45464643, "British (ex. Channel Islands & Isle of Man)", ifelse(
         ID_anonym == 45464177, "British (ex. Channel Islands & Isle of Man)", NATIONALITY)),
-    timestamp = ifelse(ACRONYM == "FY", "FY", "degree"),
 #    start_year = as.numeric(str_sub(STARTYEAR, 0, 4)),
   )
 #  %>% select(-FEESTATUS, -FEESTATUS_DESCRIPTION, -STU_NATC, -DSB_CODE, -YEAR_OF_BIRTH)   # Remove unnecessary variables
 
+  d_all %>% count(FY_ind, left_ind) 
+  # > 271 DE left, 34 FY left in either FY or UG years
+  
+# Select variables to work with
 d_all_select <- d_all %>% 
   select(ID_anonym, 
          FY_ind,
@@ -269,10 +239,47 @@ unique(d_all$CURRENTSTATUS)
 # write.xlsx(FY_students_startyear,'output/FY_students_startyear.xlsx',row.names = F) # Dataset of year start to check discrepancies
 # 
 
-
 # ============================================================================================================
 # GENERATE ACADEMIC OUTCOMES
 # ============================================================================================================
+
+## Add in module type from manual coding (see 'Module list generation.R' file)
+
+# Recode Module Type description
+d_modules_list %>% count(MODULE_TYPE)
+
+d_modules_list <- d_modules_list %>%
+  mutate(
+    MODULE_TYPE = recode(MODULE_TYPE, 
+                         `1` = "Numeric / Quantitative / Science / Engineering", 
+                         `2` = "Social science / Social studies", 
+                         `3` = "Arts & Humanities", 
+                         `4` = "Other", 
+                         `5` = "Unclear/unkown")
+  )
+
+## Merge module type and : MARKS
+d_marks$MODULE_TITLE <- trimws(d_marks$MODULE_TITLE) # trim white spaces first, otherwise merge won't work completely
+d_marks_coded <- merge(d_marks, d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
+
+  count(d_marks_coded, MODULE_TYPE) 
+  #View(d_marks_coded %>% filter(is.na(MODULE_TYPE))) # If there are NAs, then manually inspect them
+
+# If NAs present, means the module list MANUAL CODE is not up to date; set as Unknown for now
+d_marks_coded$MODULE_TYPE <- ifelse(is.na(d_marks_coded$MODULE_TYPE), "Unclear/unkown" ,d_marks_coded$MODULE_TYPE) 
+
+## Merge module type and : LECTURE ATTENDANCE
+d_lectures$MODULE_TITLE <- trimws(d_lectures$MODULE_TITLE)
+d_lectures_coded <- merge(d_lectures , d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
+  count(d_lectures_coded, MODULE_TYPE) 
+  #View(d_lectures_coded %>% filter(is.na(MODULE_TYPE)))
+d_lectures_coded$MODULE_TYPE <- ifelse(is.na(d_lectures_coded$MODULE_TYPE), "Unclear/unkown" ,d_lectures_coded$MODULE_TYPE) 
+
+## Merge module type and : SEMINAR ATTENDANCE
+d_seminars$MODULE_TITLE <- trimws(d_seminars$MODULE_TITLE)
+d_seminars_coded <- merge(d_seminars , d_modules_list, by = c('MODULE', 'MODULE_TITLE'), all.x=T)
+  count(d_seminars_coded, MODULE_TYPE) 
+d_seminars_coded$MODULE_TYPE <- ifelse(is.na(d_seminars_coded$MODULE_TYPE), "Unclear/unkown" ,d_seminars_coded$MODULE_TYPE) 
 
 # ------------------------------------------------------------------------------------------------------------
 # CLEAN MARKS DATA FOR REWRITES
@@ -298,8 +305,8 @@ d_marks_coded <- d_marks_coded %>%
 
   d_marks_coded %>% count(OCCASION)
 
-# ----
-## Get average number of modules per year
+# ------------------------------------------------------------------------------------------------------------
+## Side note: getting average number of modules per year
 
 # Have to only include those in streams in question; but not contained in modules dataset, so need to merge in
 d_acronym <- d_students %>% select(ID_anonym, ACRONYM) %>% distinct()
@@ -317,12 +324,12 @@ d_module_ave <- d_marks_coded %>% select(ID_anonym, SCHOOLYEAR, MODULE) %>%
 d_module_ave %>% 
   group_by(ID_anonym, SCHOOLYEAR) %>% summarise(module_sum = n()) %>% ungroup() %>% # get average per individual per school year
   summarise(mean = mean(module_sum))
-# 9 modules on average
+# 9 (8.47) modules on average
 
 # ------------------------------------------------------------------------------------------------------------
 # AVERAGE MARKS
 
-# ... overall marks by by year
+# ... overall marks by year
 d_marks_ave <- d_marks_coded %>% 
   group_by(ID_anonym, SCHOOLYEAR) %>% 
   summarise(
@@ -332,7 +339,7 @@ d_marks_ave <- d_marks_coded %>%
   select(ID_anonym, SCHOOLYEAR, OVERALL_MARKS)
 # Note: current school year only has minimal / has no marks recorded; drop later when merging.
 
-# ... by year and module type
+# ... overall marks by year and module type
 d_marks_ave_module <- d_marks_coded %>% 
   group_by(ID_anonym, SCHOOLYEAR, MODULE_TYPE) %>% 
   summarise(
@@ -373,11 +380,11 @@ d_lecattend_ave_module <- d_lectures_coded %>%
   ungroup() %>%
   select(ID_anonym, SCHOOLYEAR, MODULE_TYPE, LECATTEND_AVE_MODULE)
 
-# Note: very sporadic and not generally well spaced attendance checks between years 
-d_lectures_coded %>% count(MODULE_TYPE)
-# > weighted towards social studies (especially for FY)
-d_lectures_coded %>% count(SCHOOLYEAR)
-# > weighted towards 2017 & 2018 years
+  # Note: very sporadic and not generally well spaced attendance checks between years 
+  d_lectures_coded %>% count(MODULE_TYPE)
+  # > weighted towards social studies (especially for FY)
+  d_lectures_coded %>% count(SCHOOLYEAR)
+  # > weighted towards 2017 & 2018 years??
 
 # Note:  ACADEMIC_YEAR and SCHOOLYEAR are identical > check: View(d_lectures_coded %>% filter(SCHOOLYEAR != ACADEMIC_YEAR))
 
@@ -441,8 +448,9 @@ d_supervisor_ave_spread <-d_supervisor_ave_spread %>%
   )
 
 # ============================================================================================================
-# ============================================================================================================
 # OUTCOMES FOR FY STUDENTS ----> FY YEAR ONLY
+# ============================================================================================================
+
 
 # Select only FY year (as base to merge)
 d_FY <- d_all %>% filter(
@@ -450,9 +458,17 @@ d_FY <- d_all %>% filter(
 #  STAGE_DESCRIPTION != "Left",    # Removes those who Left (x17), including: Forced withdrawn (x6), Voluntarily withdrawn (x3), No show (x8); still includes UG Resit WO Res(x1)
 #  FY_startyear != "2020-2021",   # Remove current year (x21); given no outcomes data
   ) 
-d_FY %>% count(STARTYEAR)
-length(d_FY$ID_anonym)
-# Total: 173 students
+
+  d_FY %>% count(STARTYEAR)
+  length(d_FY$ID_anonym)
+  # Total: 173 students
+  d_FY %>% count(STATUS_DESCRIPTION)
+  #View(d_FY %>% filter(STATUS_DESCRIPTION == "Left"))
+
+d_FY <- d_FY %>% filter(STATUS_DESCRIPTION != "No Show") # These are No Shows for the FY year; they generally have no data or meaningful outcomes so must be dropped 
+  length(d_FY$ID_anonym)
+  d_FY %>% count(STATUS_DESCRIPTION)
+
 
 # ------------------------------------------------------------------------------------------------------------
 # MARKS
@@ -465,8 +481,8 @@ d_FY_marks <- left_join(d_FY, d_marks_ave, by = c("ID_anonym" = "ID_anonym")) %>
 # Merge module marks by FY year and module type
 d_FY_marks <- left_join(d_FY_marks, d_marks_ave_module, by = c("ID_anonym","SCHOOLYEAR"))              
 
-length(unique(d_FY_marks$ID_anonym))
-# 163 students (no shows dropped as have no data on schoolyear or marks)
+  length(unique(d_FY_marks$ID_anonym))
+  # 163 students (note the 10 no shows automatically dropped as they have no data on schoolyear or marks)
 # ------------------------------------------------------------------------------------------------------------
 # LECTURES
 
@@ -506,13 +522,14 @@ length(unique(d_FY_semattend$ID_anonym))
 d_FY_full <- full_join(d_FY_marks, d_FY_lecattend)
 d_FY_full <- full_join(d_FY_full, d_FY_semattend)
 
-    length(unique(d_FY_full$ID_anonym)) # check: 167 students
-    unique(d_FY_full$ACRONYM) # check: only FY year
+  length(unique(d_FY_full$ID_anonym)) # check: 163 students
+  unique(d_FY_full$ACRONYM) # check: only FY year
     
-    d_FY_full %>% group_by(STAGE_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
-    d_FY_full %>% group_by(STATUS_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
+  d_FY_full %>% group_by(STAGE_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
+  d_FY_full %>% group_by(STATUS_DESCRIPTION) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
+  # Still 4 no-shows, presumably because while they didn't have marks data they did have some other seminars / lecture data
     
-    # Grouping labels for use in analysis: ID_anonym; SCHOOLYEAR; MODULE_TYPE
+  # Grouping labels for use in analysis: ID_anonym; SCHOOLYEAR; MODULE_TYPE
 
 # ============================================================================================================
 # OUTCOMES FOR UG STUDENTS ----> BOTH FY AND NON-FY, ALL UG YEARS
@@ -680,8 +697,10 @@ d_johnstone_select <- d_johnstone %>% select(
 
 d_full_merge <- left_join(d_full, d_johnstone_select, by = "ID_anonym")
 
-unique(d_full_merge$Ethnicity)
-
+  unique(d_full_merge$Ethnicity)
+  print(d_full_merge %>% count(Ethnicity), n = 30)
+  # Lots of NAs
+  
 d_full_merge <- d_full_merge %>%
   mutate(
     Ethnicity_collapse =
