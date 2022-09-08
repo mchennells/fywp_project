@@ -30,7 +30,7 @@ raw_data_wp_FY <- read_csv(file = path_wp_FY)
 raw_data_wp_FY_plusJ <- read_csv(file = path_wp_FY_plusJ)
 raw_data_wp_DE <- read_csv(file = path_wp_DE)
 
-path_scholandcontex <- file.path("output", "d_scholandcontex.csv")
+path_scholandcontex <- file.path("output", "d_schol_context.csv")
 raw_data_scholandcontex <- read_csv(path_scholandcontex)
 
 path_johnstone <- file.path("data_files", "CHECK SITS_TK_Extract for Tina Kiefer 2022_08_10_002_Aug22_ID_anonym.xlsx")
@@ -337,7 +337,7 @@ d_DE <- d_ %>%
   distinct()
 
 # Keep only Home(UK) students for WP comparison
-d_DE_wp <- d_DE %>% filter(FEESTATUS == "H")    
+d_DE_wp <- d_DE %>% filter(FEESTATUS == "H")
 
 # # Only include for WP comparison DE students doing the same courses 
 #   d_ %>% filter(FY_ind == 1) %>% count(ACRONYM) 
@@ -416,16 +416,16 @@ write.xlsx(d_DE_SEC,'output/descriptive/d_DE_SEC.xlsx',rowNames = F)
 # Get DE and FY separately, then merge them together; otherwise complicated with double counting FY and UG years and differences between meaning of intake year for FY vs DE
 
 ## Check out the data
-d_DE %>% count(Intake_Year)
-d_DE %>% count(UG_startyear)
-d_DE %>% count(STAGE_DESCRIPTION)
-d_DE %>% count(FY_ind)   # Make sure no FY students snuck in
-d_DE %>% count(stream)
-d_DE %>% filter(ID_anonym %in% d_FY$ID_anonym)
-d_DE %>% count(Gender)
-d_DE %>% count(Ethnicity_collapse)
-length(unique(d_DE$ID_anonym))# 4036 comparison group (inlcudes only AF, MN and IB/IM courses). And we haven't limited to Feestutus == Home(UK)
-length(unique((d_DE %>% filter(FEESTATUS == "H") )$ID_anonym)) # 771 Home(UK) students
+  d_DE %>% count(Intake_Year)
+  d_DE %>% count(UG_startyear)
+  d_DE %>% count(STAGE_DESCRIPTION)
+  d_DE %>% count(FY_ind)   # Make sure no FY students snuck in
+  d_DE %>% count(stream)
+  d_DE %>% filter(ID_anonym %in% d_FY$ID_anonym)
+  d_DE %>% count(Gender)
+  d_DE %>% count(Ethnicity_collapse)
+  length(unique(d_DE$ID_anonym))# 4036 comparison group (inlcudes only AF, MN and IB/IM courses). And we haven't limited to Feestutus == Home(UK)
+  length(unique((d_DE %>% filter(FEESTATUS == "H") )$ID_anonym)) # 771 Home(UK) students
 
 
 d_FY_select <- d_FY %>% 
@@ -466,15 +466,34 @@ d_eth_summary_yr <- d_combined %>%
 # ... New_Tariff is predicted tariff, not final results 
 
 
-#### >>>>
-#### >>>> Need to add in DE_WP category here
-#### >>>>
+## DE_WP category
+# Any students who are: 
+# : Non-FY
+# : With scholarships / bursaries
+# : Who are Warwick Scholars
+# : Who have contextual offers
+# : Meet multiple WP criteria from Johnstone dataset
+
+d_scholcont_select <- raw_data_scholandcontex %>% 
+  select(ID_anonym , ind_WBS_Scholarship, ind_Warwick_Scholar, ind_Contextual_Offer)
+
+d_tariff <- d_combined %>% left_join(d_scholcont_select) %>%
+  mutate(ind_SCHOLFUL = ifelse( 
+    ind_WBS_Scholarship == "Yes" | ind_Warwick_Scholar == "Yes" | ind_Contextual_Offer == "Yes", "Yes", "No"))
+
+  #View(d_combined %>% filter (ind_SCHOLFUL == "Yes"))
+  # Have some of the DE Contextual offers been removed by dropping (e.g. Left or not in course?), as there are fewer matches that in the full schol + contextual list
+d_tariff %>% count(FY, ind_SCHOLFUL)
+    
+    testie <- d_scholcont_select %>% left_join(d_tariff) %>% 
+      mutate(ind_DUP = duplicated(ID_anonym)) %>%
+      select(ID_anonym, FY, starts_with("ind_"), everything())
 
 
-d_combined %>% count(FY)
-d_combined %>% count(FY, FEESTATUS, FEESTATUS_DESCRIPTION) 
+  d_tariff %>% count(FY)
+  d_tariff %>% count(FY, FEESTATUS, FEESTATUS_DESCRIPTION) 
 
-d_tariff <- d_combined %>%
+d_tariff <- d_tariff %>%
   filter(FY == "FY students" | FEESTATUS == "H")
 
 d_tariff %>% count(FY)
