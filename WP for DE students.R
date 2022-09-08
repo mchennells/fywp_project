@@ -56,6 +56,8 @@ d_schol_warwick <- d_warwickscholars %>%
 # Natwest (open to all UG students; 5 x £1k bursaries, access to careers/development events with Natwest)
 
 # Young Entrepreneurs and Lion Rock studentship (1 FY Lion Rock bursary selected every year) (full fee paying scholarship + £3k bursary each year)
+# Warwick Scholars Program (half fee paying)
+  
 # Merge DSP and MSP into WISP (£2k a year for 3 years + course program on the side)
 # RBS Scholarship (£3k total, £1k per year for 3 years)
   

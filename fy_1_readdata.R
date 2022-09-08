@@ -145,22 +145,16 @@ d_all <- d_all %>%
   d_all %>% count(FY_ind, left_ind) 
   # > 271 DE left, 34 FY left in either FY or UG years
   
-# Select variables to work with
-d_all_select <- d_all %>% 
-  select(ID_anonym, 
-         FY_ind,
-         NATIONALITY, #
-         SEX, 
-         COUNT_MITIGATING_CIRCUMSTANCES, 
-         timestamp,
-         STARTYEAR, 
-         ACRONYM, stream, MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION
-  )
 
 # ------------------------------------------------------------------------------------------------------------
+
+##### >>>>>>> This should go at the end, once everything has been counted; but just after UG startyear issues
+  
 ## SUMMARISE PROGRESS OF FY STUDENTS
 # FY students progressed to UG currently have 2 rows / records for FY year and UG year > spread to make 1 row per student with both FY and UG year recorded for each var in question
-FY_students_select_spread <- d_all_select %>%
+FY_students_select_spread <- d_all %>%
+  select(ID_anonym, FY_ind, NATIONALITY, SEX, COUNT_MITIGATING_CIRCUMSTANCES, timestamp, STARTYEAR, 
+         ACRONYM, stream, MAXSTAGE, CURRENTSTAGE, STAGE_DESCRIPTION, CURRENTSTATUS, STATUS_DESCRIPTION) %>%
   filter(FY_ind == 1) %>%
   pivot_wider(names_from = timestamp,
               values_from = c(NATIONALITY, SEX, COUNT_MITIGATING_CIRCUMSTANCES, STARTYEAR, ACRONYM, stream,
@@ -553,7 +547,13 @@ d_UG_marks <- left_join(d_UG, d_marks_ave, by = c("ID_anonym" = "ID_anonym")) %>
   filter(FY_startyear != SCHOOLYEAR | is.na(FY_startyear))  # For FY students; all years not including their FY year; DE students, missing FY startyear
 # Note: there can be multiple records (rows) for each student, i.e. for each year of study
 
+    
+    
+    
+    
 # # # # # # # # # # # # # # # # 
+  ### This needs to go somewhere where it can impact the FY students too!!!
+    
 # # CHECK >> student startyear seems to have issues wrt FY students for their FY and UG years
 # d_UG_marks_test <- d_UG_marks %>%
 #   filter(FY_ind == 1) %>%
@@ -608,6 +608,10 @@ d_UG_marks <- d_UG_marks %>%
 
 #View(d_UG_marks %>% select(ID_anonym, FY_ind, STARTYEAR, SCHOOLYEAR, schoolyear_min, UG_startyear, stream))
 d_UG_marks <- d_UG_marks %>% select(-schoolyear_sub, -schoolyear_min)
+
+# # # # # # # # # # # # # # # # 
+
+
 
 # Merge module marks by UG school year and module type
 d_UG_marks <- left_join(d_UG_marks, d_marks_ave_module, by = c("ID_anonym","SCHOOLYEAR")) 
