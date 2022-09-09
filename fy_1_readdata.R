@@ -695,7 +695,7 @@ unique(d_full$ACRONYM)
 d_johnstone_select <- d_johnstone %>% select(
   ID_anonym, 
   Gender, Disability, Ethnicity, Intake_Year,
-  New_Tariff, Award_Class, Award_Year, 
+  Entry_Tariff, New_Tariff, Award_Class, Award_Year, 
   # add in IMD Quntile here
   )
 
@@ -713,7 +713,7 @@ d_full_merge <- d_full_merge %>%
                     ifelse(Ethnicity %in% c("Black  - African or African British", "Black - Caribbean or Caribbean British", "Any other Black Background"), "Black",
                            ifelse(Ethnicity %in% c("Asian - Chinese or Chinese British"), "Chinese",
                                   ifelse(Ethnicity %in% c("Mixed or multiple ethnic groups - White or White British and Asian or Asian British","Mixed or multiple ethnic groups - White or White British and Black African or Black African British","Mixed or multiple ethnic groups - White or White British and Black Caribbean or Black Caribbean British", "Any other Mixed or Multiple ethnic background"), "Mixed",
-                                         ifelse(Ethnicity %in% c("White", "White - English, Scottish, Welsh, Northern Irish or British", "White - Irish", "Any other White Background"), "White", 
+                                         ifelse(Ethnicity %in% c("White", "White - English, Scottish, Welsh, Northern Irish or British", "White - Irish", "White - Gypsy or Irish Traveller", "Any other White Background"), "White", 
                                                 Ethnicity
                                          )))))))
   # Left as is: Any other ethnic background; Prefer not to say / Information refused

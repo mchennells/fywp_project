@@ -16,18 +16,20 @@ rm(list=ls())
 
 # ============================================================================================================
 # SETUP
-
 path_data <- file.path("output", "data_full_merge.csv")
 raw_data <- read_csv(file = path_data)
-# Note: data has multiple rows per student corresponding to FY / UG period, Schoolyear, and Module type, respectively.
 
+path_wp_FY <- file.path("output", "d_wp_FY_final_220822.csv")
 path_wp_FY_plusJ <- file.path("output", "d_wp_FY_final_plusJ_220822.csv")
 path_wp_DE <- file.path("output", "d_wp_DE_final_220822.csv")
 
+raw_data_wp_FY <- read_csv(file = path_wp_FY)
 raw_data_wp_FY_plusJ <- read_csv(file = path_wp_FY_plusJ)
 raw_data_wp_DE <- read_csv(file = path_wp_DE)
 
-fy_courses <- c('FY', 'MN','MNI', 'MNF', 'MNM', 'AF','AFI', 'AFUPP')
+path_scholandcontex <- file.path("output", "d_schol_context.csv")
+raw_data_scholandcontex <- read_csv(path_scholandcontex)
+
 
 # ============================================================================================================
 
@@ -35,9 +37,7 @@ fy_courses <- c('FY', 'MN','MNI', 'MNF', 'MNM', 'AF','AFI', 'AFUPP')
 
 # ____________________________________________________
 # Data selection for analysis
-d_ <- raw_data %>%
-#  select(-STAGE_DESCRIPTION, -STATUS_DESCRIPTION) %>%
-  filter(ACRONYM %in% fy_courses)
+d_ <- raw_data
 
     d_ %>% group_by(FY_ind) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
     
@@ -175,8 +175,26 @@ d_ <- d_ %>% filter(
 #View(d_ %>% filter(CURRENTSTAGE == 1)) # no students
 #d_ <- d_ %>% filter(CURRENTSTAGE > 1)
 
-# Change variable name for figure display
-d_ <- d_ %>% mutate(FY = ifelse(FY_ind == 1, "FY","Direct entry"))
+# Add in DE - WP criteria
+d_scholcont_select <- raw_data_scholandcontex %>% 
+  select(ID_anonym , ind_WBS_Scholarship, ind_Warwick_Scholar, ind_Contextual_Offer)
+
+# New tariff dataset
+d_ <- d_ %>% left_join(d_scholcont_select) %>%
+  mutate(ind_SCHOLFUL = ifelse( 
+    ind_WBS_Scholarship == "Yes" | ind_Warwick_Scholar == "Yes" | ind_Contextual_Offer == "Yes", "Yes", "No"))
+
+d_ <- d_ %>%
+  mutate(
+    FY = ifelse(FY_ind == 1, "FY students","Direct entry"), 
+    student_type = ifelse(FY_ind == 1, "FY", 
+                          ifelse((FY_ind == 0 & ind_SCHOLFUL == "Yes"), "DE - WP students", "DE students"))) %>%
+  mutate(
+    student_type = ifelse(is.na(student_type),"DE students", student_type)   # weird, had to do this because 'else' part wasn't working above
+  )
+
+  d_ %>% count(student_type)
+  d_ %>% count(FY)
 
 # ----------------------------------------------------------------------------------------
 # NB NOTE: we are not removing those that didn't pass - we are taking all into account, as long as they haven't left
@@ -194,6 +212,8 @@ d_stats <- d_ %>% select(ID_anonym,  FY_ind, FY_startyear, UG_startyear) %>% dis
 # ==========================================================================================
 ### MARKS
 # Q: how well are FW students doing? (1) Overall (2) numbers modules (3) social sciences modules
+
+# ----------------------------------------------------------------------------------------
 
 ## FY YEAR
 
@@ -215,15 +235,15 @@ marks_FYyear_module_year <- d_ %>% filter(ACRONYM == "FY") %>%
          OVERALL_MARKS, MODULE_TYPE, OVERALL_MARKS_MODULE)  %>%
   group_by(FY_startyear, MODULE_TYPE) %>% summarise(mean_marks = mean(OVERALL_MARKS_MODULE, na.rm = TRUE)) %>% ungroup()
 
-
+# ----------------------------------------------------------------------------------------
 ## UNDERGRADUATE YEARS
 # ... by FY UG startyear
 
 # Remove duplicates present from multiple modules by year
 d_marks_UG <- d_ %>% filter(ACRONYM != "FY") %>% 
-  select(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
+  select(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, student_type, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
 
-d_marks_UG %>% select(ID_anonym, FY, FY_startyear, UG_startyear) %>% distinct() %>% count(FY, UG_startyear) 
+  d_marks_UG %>% select(ID_anonym, FY,student_type, FY_startyear, UG_startyear) %>% distinct() %>% count(FY, UG_startyear) 
 
 # ... note this also drops the records from (2) earlier: records of FY students who left only during UG year (9, including 7 forced/voluntary withdrawn and 2 no shows) [see code below to see this]
 # /////////// >> this was to find issues in students dropped in the comment above
@@ -254,7 +274,7 @@ d_marks_UG %>% select(ID_anonym, FY, FY_startyear, UG_startyear) %>% distinct() 
 
 # Get one average mark per student (i.e. collapse)
 d_marks_UG_collapse <- d_marks_UG %>%
-  group_by(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, ACRONYM, stream, UG_startyear) %>% 
+  group_by(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, student_type, ACRONYM, stream, UG_startyear) %>% 
   summarise( mean_marks = mean(OVERALL_MARKS, na.rm = TRUE)) %>% ungroup()
 
 # 
@@ -266,10 +286,10 @@ d_marks_UG_collapse <- d_marks_UG %>%
 # # Missing any marks for 2018/19 year (barring 1 module), supposed UG startyear (see readdata script for info on this issue)
 # # Seems they only started UG in 2019, so they need to be dropped too (given the issues with 2019/2020 year marks)
 # 
- 
 d_marks_UG_collapse <- d_marks_UG_collapse %>% filter(!(ID_anonym %in% c("45465811","45475992")))
 
-d_marks_UG_collapse %>% select(ID_anonym, FY, UG_startyear) %>% distinct() %>% count(FY, UG_startyear) 
+#
+  d_marks_UG_collapse %>% select(ID_anonym, student_type, UG_startyear) %>% distinct() %>% count(student_type, UG_startyear) 
 
 # Comparing FY and DE marks
 # ... overall
@@ -291,17 +311,20 @@ d_marks_overall_gen <- d_marks_UG_collapse %>%
 
 # ... by ethnicity
 d_marks_overall_eth <- d_marks_UG_collapse %>% 
-  group_by(FY, Ethnicity_collapse) %>% 
+  group_by(student_type, Ethnicity_collapse) %>% 
   summarise(
-    marks_overall_mean = mean(mean_marks),
+    marks_overall_mean = mean(mean_marks, na.rm = TRUE),
     students_sum = n()) %>%
   ungroup() %>% 
-  pivot_wider(names_from = FY, values_from = c(marks_overall_mean, students_sum))
+  pivot_wider(names_from = student_type, values_from = c(marks_overall_mean, students_sum))
 
 # ----------------------------------------------------------------------------------------
 # Plot overall marks
+
+d_marks_UG_collapse$student_type <- as_factor(d_marks_UG_collapse$student_type)
+#
 plot_marks_overall <-  ggplot(
-    d_marks_UG_collapse, aes(x=FY, y=mean_marks, fill = FY)) + 
+    d_marks_UG_collapse, aes(x=student_type, y=mean_marks, fill = student_type)) + 
     stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
     stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
     stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
@@ -319,7 +342,7 @@ plot_marks_overall_startyear <-  ggplot(
   stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
   stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
   ylab("Average marks (%)") +
-  xlab("Student entry type") +
+  xlab("UG startyear") +
   ggtitle("Average UG Overall marks across all modules") +
   coord_cartesian(ylim=c(0,80)) +
   theme_minimal(12) +
@@ -341,27 +364,41 @@ plot_marks_overall_stream <-  ggplot(
   #  theme(legend.position = "none")
 plot_marks_overall_stream
 
+plot_marks_overall_stream <-  ggplot(
+  d_marks_UG_collapse, aes(x=student_type, y=mean_marks, fill = stream)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
+  ylab("Average marks (%)") +
+  xlab("Student entry type") +
+  ggtitle("Average UG Overall marks between streams") +
+  coord_cartesian(ylim=c(0,80)) +
+  theme_minimal(12) 
+#  theme(legend.position = "none")
+plot_marks_overall_stream
+
 
 # ----------------------------------------------------------------------------------------
 ### BY MODULES 
 
 # Remove duplicates present from multiple modules by year
 d_marks_UG_modules <- d_ %>% filter(ACRONYM != "FY") %>% 
-  select(ID_anonym, Gender, Ethnicity, FY, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, MODULE_TYPE, OVERALL_MARKS_MODULE)
+  select(ID_anonym, Gender, Ethnicity, FY, student_type, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, MODULE_TYPE, OVERALL_MARKS_MODULE)
 
 d_marks_UG_modules <- d_marks_UG_modules %>% filter(!(ID_anonym %in% c("45465811","45475992")))
 
 # Get one average mark per student (i.e. collapse )
 d_marks_UG_modules_collapse <- d_marks_UG_modules %>%
-  group_by(ID_anonym, Gender, Ethnicity, FY, ACRONYM, stream, UG_startyear, MODULE_TYPE) %>% 
+  group_by(ID_anonym, Gender, Ethnicity, FY, student_type, ACRONYM, stream, UG_startyear, MODULE_TYPE) %>% 
   summarise( 
     mean_marks = mean(OVERALL_MARKS_MODULE, na.rm = TRUE)
     ) %>% ungroup()
 
+  d_marks_UG_modules_collapse %>% count(MODULE_TYPE)
 
 ## Numeric-related modules
 plot_marks_numeric <-  ggplot(
-      d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Numeric"), 
+      d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Numeric / Quantitative / Science / Engineering"), 
       aes(x=FY, y=mean_marks, fill = FY)) + 
       stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
       stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
@@ -394,7 +431,7 @@ with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Numeric"), wi
 
 ## Social sciences-related modules
 plot_marks_social <-  ggplot(
-      d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Social studies"), 
+      d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Social science / Social studies"), 
       aes(x=FY, y=mean_marks, fill = FY)) + 
       stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
       stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
@@ -456,6 +493,68 @@ with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Social studie
 #   theme(legend.position = "none")
 # plot_marks_unknown
 #
+
+# ----------------------------------------------------------------------------------------
+# Plot marks by SCHOOLYEAR and FY
+
+d_marks_year <- d_ %>% filter(ACRONYM != "FY") %>% 
+  select(ID_anonym, FY, student_type, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
+
+d_marks_year_collapse <- d_marks_year %>%
+  group_by(ID_anonym, FY, student_type, stream, SCHOOLYEAR) %>% 
+  summarise( mean_marks = mean(OVERALL_MARKS, na.rm = TRUE)) %>% ungroup()
+
+d_marks_year_collapse <- d_marks_year_collapse %>% filter(!(ID_anonym %in% c("45465811","45475992")))
+  
+d_marks_year_overall <- d_marks_year_collapse %>% 
+  group_by(SCHOOLYEAR, FY) %>% 
+  summarise(
+    marks_overall_mean = mean(mean_marks, na.rm = TRUE),
+    #students_sum = n()
+    ) %>%
+  ungroup() %>% 
+  pivot_wider(names_from = FY, values_from = marks_overall_mean, names_prefix = "Overall marks_") %>%
+  mutate(marks_diff = `Overall marks_Direct entry` - `Overall marks_FY students`)
+
+#d_marks_year_collapse$student_type <- as_factor(d_marks_year_collapse$student_type)
+#
+plot_marks_year <-  ggplot(
+  d_marks_year_collapse, aes(x=SCHOOLYEAR)) + 
+  stat_summary(aes(y=mean_marks, group = FY, color = FY), fun = mean, geom='line', size=1) +
+  stat_summary(aes(y=mean_marks, group = FY, color = FY), fun.data = mean_se, geom='errorbar', width=0.2) +
+  stat_summary(aes(y=mean_marks, group = FY, color = FY, label=round(..y..,0)), 
+               fun=mean, geom="text", vjust = -2) +
+  stat_summary(data = d_marks_year_overall, aes(y=marks_diff),
+               fun = mean, geom='bar', 
+               width=0.3, position=position_dodge(0.5), fill = "grey") +
+  stat_summary(data = d_marks_year_overall, aes(y=marks_diff, label=round(..y..,0)), 
+               fun = mean, geom="text", vjust = -2) +
+  xlab("School Year") +
+  ggtitle("Average overall marks by year, and difference between group averages") +
+  coord_cartesian(ylim=c(0,90)) +
+  scale_y_continuous(name = "Average marks (%)",  breaks = seq(0,90,10)) +
+  theme_minimal(12) +
+  theme(legend.justification = c(0, 1), legend.position = c(0.75, 1), legend.title=element_blank())
+plot_marks_year
+
+plot_marks_year_type <-  ggplot(
+  d_marks_year_collapse, aes(x=SCHOOLYEAR)) + 
+  stat_summary(aes(y=mean_marks, group = student_type, color = student_type), fun = mean, geom='line', size=1) +
+  stat_summary(aes(y=mean_marks, group = student_type, color = student_type), fun.data = mean_se, geom='errorbar', width=0.2) +
+  stat_summary(aes(y=mean_marks, group = student_type, color = student_type, label=round(..y..,0)), 
+               fun=mean, geom="text", vjust = -2) +
+  stat_summary(data = d_marks_year_overall, aes(y=marks_diff),
+               fun = mean, geom='bar', 
+               width=0.3, position=position_dodge(0.5), fill = "grey") +
+  stat_summary(data = d_marks_year_overall, aes(y=marks_diff, label=round(..y..,0)), 
+               fun = mean, geom="text", vjust = -2) +
+  xlab("School Year") +
+  ggtitle("Average overall marks by year, and difference between group averages") +
+  coord_cartesian(ylim=c(0,90)) +
+  scale_y_continuous(name = "Average marks (%)",  breaks = seq(0,90,10)) +
+  theme_minimal(12) +
+  theme(legend.justification = c(0, 1), legend.position = c(0.75, 1), legend.title=element_blank())
+plot_marks_year_type
 
 # ----------------------------------------------------------------------------------------
 ## FY AND PREDICTING UG MARKS
@@ -593,7 +692,7 @@ plot_fy_ug
 #hist(d_marks_FYUG_final$New_Tariff, breaks = 20)
 
 # ==========================================================================================
-# COHORT 1 WHO'VE GRADUATED COMPARISON ONLY
+# COHORTS WHO'VE GRADUATED COMPARISON ONLY
 d_grad <- d_ %>% 
   filter(ACRONYM != "FY", STATUS_DESCRIPTION == "Awarded", 
          Award_Year %in% c("18/19","19/20")) %>%

@@ -18,7 +18,7 @@ library(readxl)
 rm(list=ls())
 
 path_data <- file.path("output", "data_full_merge.csv")
-raw_data <- read.csv(file = path_data ,header = T, stringsAsFactors = F)
+raw_data <- read_csv(file = path_data)
 # Note: data has multiple rows per student corresponding to FY / UG period, Schoolyear, and Module type, respectively.
 
 # Read in WP criteria and scholarship data
@@ -43,7 +43,7 @@ d_ <- raw_data %>%
   select(
     ID_anonym, ACRONYM, stream, FY_ind, FY_startyear, UG_startyear, timestamp,
     STAGE_DESCRIPTION, STATUS_DESCRIPTION, FEESTATUS, FEESTATUS_DESCRIPTION,
-    New_Tariff, Award_Class, Award_Year, Intake_Year,
+    Entry_Tariff, New_Tariff, Award_Class, Award_Year, Intake_Year,
     Gender, Ethnicity, Ethnicity_collapse, Disability
   )
 
@@ -55,12 +55,12 @@ d_left <- d_ %>%
 d_left %>% count(timestamp, STATUS_DESCRIPTION)
 # 12 left during FY year (8 FW, 4 VW) and 9 during UG (6 FW, 3 VW)
 length(d_left$ID_anonym)
-mean(d_left$New_Tariff)
+mean(d_left$Entry_Tariff)
 
 # ============================================================================================================
 # FY WP Data
 
-# Isolate only FY students
+# Isolate only FY students -- while in foundation year
 d_FY <- d_ %>% 
   filter(
     FY_ind == 1,      # Select only FY students
@@ -115,6 +115,17 @@ length(unique(d_FY$ID_anonym)) # Check: 151 students who completed FY year, have
 # ----------------------------------------------------------------------------------------
 # FY STUDENTS DEMOGRAPHICS 
 
+# ------
+## BODGE JOB: add in 2022 cohort with updated new data
+# 
+# path_FY_22<- file.path("data_files/FY_WP files", "FY 2022 offer shortlist v2_new version_Aug22_ID_anonym.xlsx")
+# d_FY_22 <- read_excel(path_FY_22) %>%
+#   mutate(FY_startyear = "2022-2023")
+# 
+# d_FY <- bind_rows(d_FY, d_FY_22)
+
+# ------
+
 # Gender
 unique(d_FY$Gender)
 d_FY %>% count(Gender)
@@ -122,8 +133,8 @@ d_FY_gender <- d_FY %>%
   group_by(FY_startyear) %>%
   summarize(
     tot_students = n(),
-    tot_females = sum(Gender=="F"), tot_females_prop = round(mean(Gender=="F"), 2),
-    tot_males = sum(Gender=="M"), tot_males_prop = round(mean(Gender=="M"), 2),
+    tot_females = sum(Gender=="F", na.rm = TRUE), tot_females_prop = round(mean(Gender=="F", na.rm = TRUE), 2),
+    tot_males = sum(Gender=="M", na.rm = TRUE), tot_males_prop = round(mean(Gender=="M", na.rm = TRUE), 2),
   ) %>%
   ungroup()
 d_FY_gender
@@ -404,10 +415,39 @@ d_DE_SEC
 write.xlsx(d_DE_SEC,'output/descriptive/d_DE_SEC.xlsx',rowNames = F)
 
 # ----------------------------------------------------------------------------------------
+## DE -- WP characteristics
+d_scholcont_select <- raw_data_scholandcontex %>% 
+  select(ID_anonym , ind_WBS_Scholarship, ind_Warwick_Scholar, ind_Contextual_Offer)
+
+# New tariff dataset
+d_DE_wp_schol <- d_DE_wp %>% left_join(d_scholcont_select) %>%
+  mutate(ind_SCHOLFUL = ifelse( 
+    ind_WBS_Scholarship == "Yes" | ind_Warwick_Scholar == "Yes" | ind_Contextual_Offer == "Yes", "Yes", "No")) %>%
+  filter(ind_SCHOLFUL == "Yes")
+
+d_DE_wp_schol  %>% count(WP1_InCare_n_J)
+
+d_DE_wp_schol  %>% count(WP2_GCSE_both_n_J)
+
+d_DE_wp_schol  %>% count(WP3_FSM_n_J)
+
+d_DE_wp_schol  %>% count(WP4_LPN_n_J)
+
+d_DE_wp_schol  %>% count(WP5_1stGen_n_J)
+
+d_DE_wp_schol  %>% count(IMD_Quintile)
+
+
+# ----------------------------------------------------------------------------------------
+
 # Check here for quality of the data over time
 
 # % NA by intake year
 # xx
+
+
+
+
 
 # ============================================================================================================
 # COMPARISON OF FY AND DE 
@@ -431,16 +471,38 @@ write.xlsx(d_DE_SEC,'output/descriptive/d_DE_SEC.xlsx',rowNames = F)
 d_FY_select <- d_FY %>% 
   select(ID_anonym, FEESTATUS, FEESTATUS_DESCRIPTION, FY_ind, STAGE_DESCRIPTION, STATUS_DESCRIPTION, 
          Intake_Year, FY_startyear, UG_startyear, 
-         ACRONYM, Gender, Ethnicity_collapse, New_Tariff)
+         ACRONYM, Gender, Ethnicity_collapse, Entry_Tariff)
 
 d_DE_select <- d_DE %>% 
   select(ID_anonym, FEESTATUS, FEESTATUS_DESCRIPTION, FY_ind, STAGE_DESCRIPTION, STATUS_DESCRIPTION, 
          Intake_Year, FY_startyear, UG_startyear, 
-         ACRONYM, Gender, Ethnicity_collapse, New_Tariff)  
+         ACRONYM, Gender, Ethnicity_collapse, Entry_Tariff)  
 
 d_combined <- bind_rows(d_FY_select, d_DE_select) %>%
   mutate(FY = ifelse(FY_ind == 1, "FY students","DE students")) %>% select(-FY_ind)
 
+## Gender: DE and FY
+d_gen_summary <- d_combined %>%
+  #  filter(FY_ind == 1 | FEESTATUS == "H") %>%   # filter to include only FY students and DE Home(UK) students if required
+  select(ID_anonym, Intake_Year, FY, Gender) %>%
+  group_by(FY, Gender) %>%
+  summarize(gen_sum = n()) %>%
+  #  mutate(Ethnicity = paste0(Ethnicity, "_sum")) %>%
+  spread(Gender, gen_sum, fill = 0) %>%
+  ungroup()
+
+d_gen_summary_year <- d_combined %>%
+  select(ID_anonym, Intake_Year, FY, Gender) %>%
+  group_by(FY, Intake_Year, Gender) %>%
+  summarize(
+    tot_students = n(),
+    tot_females = sum(Gender=="F"), tot_females_prop = round(mean(Gender=="F"), 2),
+    tot_males = sum(Gender=="M"), tot_males_prop = round(mean(Gender=="M"), 2),
+  ) %>%
+  ungroup()
+d_gen_summary_year
+
+## Ethnicity: DE and FY
 d_eth_summary <- d_combined %>%
   #  filter(FY_ind == 1 | FEESTATUS == "H") %>%   # filter to include only FY students and DE Home(UK) students if required
   select(ID_anonym, Intake_Year, FY, Ethnicity_collapse, ) %>%
@@ -458,6 +520,15 @@ d_eth_summary_yr <- d_combined %>%
   #  mutate(Ethnicity = paste0(Ethnicity, "_sum")) %>%
   spread(Ethnicity_collapse, eth_sum, fill = 0) %>%
   ungroup()
+
+
+d_DE_eth_collapse_yr <- d_DE %>%
+  group_by(Intake_Year, Ethnicity_collapse) %>%
+  summarize(eth_sum = n()) %>%
+  mutate(Ethnicity_collapse = paste0(Ethnicity_collapse, "_sum")) %>%
+  spread(Ethnicity_collapse, eth_sum, fill = 0) %>%
+  ungroup()
+d_DE_eth_collapse_yr
 
 # ----------------------------------------------------------------------------------------
 # TARIFF / A-LEVEL RESULTS COMPARISON
@@ -477,27 +548,23 @@ d_eth_summary_yr <- d_combined %>%
 d_scholcont_select <- raw_data_scholandcontex %>% 
   select(ID_anonym , ind_WBS_Scholarship, ind_Warwick_Scholar, ind_Contextual_Offer)
 
+# New tariff dataset
 d_tariff <- d_combined %>% left_join(d_scholcont_select) %>%
   mutate(ind_SCHOLFUL = ifelse( 
     ind_WBS_Scholarship == "Yes" | ind_Warwick_Scholar == "Yes" | ind_Contextual_Offer == "Yes", "Yes", "No"))
 
   #View(d_combined %>% filter (ind_SCHOLFUL == "Yes"))
   # Have some of the DE Contextual offers been removed by dropping (e.g. Left or not in course?), as there are fewer matches that in the full schol + contextual list
-d_tariff %>% count(FY, ind_SCHOLFUL)
-    
-    testie <- d_scholcont_select %>% left_join(d_tariff) %>% 
-      mutate(ind_DUP = duplicated(ID_anonym)) %>%
-      select(ID_anonym, FY, starts_with("ind_"), everything())
-
-
-  d_tariff %>% count(FY)
+  
+  d_tariff %>% count(FY, ind_SCHOLFUL)
   d_tariff %>% count(FY, FEESTATUS, FEESTATUS_DESCRIPTION) 
 
 d_tariff <- d_tariff %>%
   filter(FY == "FY students" | FEESTATUS == "H")
 
-d_tariff %>% count(FY)
-d_tariff %>% count(FY, FEESTATUS)
+  d_tariff %>% count(FY)
+  d_tariff %>% count(FY, ind_SCHOLFUL)
+  d_tariff %>% count(FY, FEESTATUS)
 
 # In case we need school info included
 d_schooltype <- d_johnstone %>% 
@@ -509,22 +576,35 @@ d_schooltype <- d_johnstone %>%
 
 d_tariff <- d_tariff %>% left_join(d_schooltype)
 
-d_tariff %>% 
-  select(ID_anonym, FY, FY_startyear, UG_startyear, New_Tariff) %>%
-  filter(FY == "FY students", is.na(New_Tariff))
-# Missing New_Tariff for three FY students: 45566060, 45258404, 45261885
+  d_tariff %>% 
+    select(ID_anonym, FY, FY_startyear, UG_startyear, Entry_Tariff) %>%
+    filter(FY == "FY students", is.na(Entry_Tariff))
+  # Missing New_Tariff for three FY students: 45566060, 45258404, 45261885
 
 d_tariff <- d_tariff %>% 
   filter(!(ID_anonym %in% c("45674377","45681167", "45580686"))) %>%   # Remove 2 FY BTEC students (ultra high tariff), 1 very low DE student
   filter(!(UG_startyear %in% c("2014"))) %>% # remove several missing DE students
-  filter(!(New_Tariff %in% c(0, NA)))   # Remove the missing FY (x3) and DE students (x48)
+  filter(!(Entry_Tariff %in% c(0, NA)))   # Remove the missing FY (x3) and DE students (x48)
 
 d_tariff %>% count(FY)
-# 146 FY students (151 minus 2x BTEC % 3x missing); 720 Home(UK) students in streams (AF, MN, IM/IB)
+# 147 FY students (151 minus 2x BTEC % 3x missing); 730 Home(UK) students in streams (AF, MN, IM/IB)
 
+d_tariff <- d_tariff %>%
+  mutate(
+    student_type = ifelse(FY == "FY students", FY, 
+                          ifelse((FY == "DE students" & ind_SCHOLFUL == "Yes"), "DE - WP students", "DE students"))) %>%
+  mutate(
+    student_type = ifelse(is.na(student_type),"DE students", student_type)   # weird, had to do this because 'else' part wasn't working above
+  )
+                                 
+  d_tariff %>% count(student_type)
+
+
+d_tariff$student_type <- factor(d_tariff$student_type, levels=c("DE students", "DE - WP students", "FY students"))
+  
 # Plots
 plot_tariffs <-  ggplot(
-  d_tariff, aes(x=FY, y=New_Tariff, fill = FY)) +
+  d_tariff, aes(x=student_type, y=Entry_Tariff, fill = student_type)) +
   stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
   stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
   stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +
@@ -537,7 +617,7 @@ plot_tariffs <-  ggplot(
 plot_tariffs
 
 plot_tariffs_cohort <-  ggplot(
-  d_tariff %>% filter(FY == "FY students"), aes(x=FY_startyear, y=New_Tariff)) +
+  d_tariff %>% filter(FY == "FY students"), aes(x=FY_startyear, y=Entry_Tariff)) +
   stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
   stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
   stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -3) +
@@ -551,7 +631,7 @@ plot_tariffs_cohort <-  ggplot(
 plot_tariffs_cohort
 
 plot_tariffs_cohort_DE <-  ggplot(
-  d_tariff %>% filter(FY == "DE students"), aes(x=UG_startyear, y=New_Tariff)) +
+  d_tariff %>% filter(student_type != "FY students"), aes(x=UG_startyear, y=Entry_Tariff)) +
   stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
   stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
   stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -3) +
@@ -563,5 +643,26 @@ plot_tariffs_cohort_DE <-  ggplot(
   theme(legend.position = "none")
 #  scale_x_discrete(labels=c("Cohort 1","Cohort 2","Cohort 3"))
 plot_tariffs_cohort_DE
+
+# ============================================================================================================
+# GETTING DEGREE CLASSES FOR THOSE WHO'VE GRADUATED
+
+d_grad <- d_ %>% 
+  filter(
+    ACRONYM != "FY", 
+    STATUS_DESCRIPTION == "Awarded", 
+    Award_Year %in% c("18/19","19/20", "20/21")
+    ) %>%
+  select(ID_anonym, FY_ind, FY_startyear, Award_Year, Award_Class, Entry_Tariff) 
+
+  # Compare DE and FY students for years in question
+  d_grad %>% select(ID_anonym, FY_ind, Award_Year, Award_Class) %>% distinct() %>% count(Award_Year, FY_ind, Award_Class)
+
+# Award breakdown by FY cohort
+d_grad_award  <- d_grad %>% 
+  filter(FY_ind == 1) %>%
+  select(ID_anonym, FY_startyear, Award_Year, Award_Class) %>% distinct() %>% 
+  count(FY_startyear, Award_Class, Award_Year)
+
 
 # ============================================================================================================
