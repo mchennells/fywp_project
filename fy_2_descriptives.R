@@ -173,6 +173,16 @@ d_FY_gender_ethnicity <- d_FY %>%
 d_FY_gender_ethnicity
 write.xlsx(d_FY_gender_ethnicity,'output/descriptive/d_FY_gender_ethnicity.xlsx',rowNames = F)
 
+  d_FY %>% count(wp_sum_with_awards)
+  mean(d_FY$wp_sum_with_awards)
+
+d_FY_wpsum <- d_FY %>% 
+  group_by(Ethnicity_collapse) %>%
+  summarise(
+    wp_mean = mean(wp_sum_with_awards, na.rm = TRUE),
+    students_sum = n()) %>%
+  ungroup()
+
 # ----------------------------------------------------------------------------------------
 # WIDENING PARTICIPATION FLAGS - FOR FY STUDENTS
 # WP INDEX: number / 5 flags for each student + awards form
@@ -613,7 +623,9 @@ plot_tariffs <-  ggplot(
   scale_y_continuous(name = "Average entry tariff", breaks = seq(0,200,50)) +
   scale_x_discrete(name = "Undergraduate student entry type") +
   theme_minimal(12) +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  scale_fill_manual(values=c("#3399FF", "#E69F00", "#006633"))
+  #scale_fill_brewer(palette = "Dark2")
 plot_tariffs
 
 plot_tariffs_cohort <-  ggplot(
@@ -651,7 +663,7 @@ d_grad <- d_ %>%
   filter(
     ACRONYM != "FY", 
     STATUS_DESCRIPTION == "Awarded", 
-    Award_Year %in% c("18/19","19/20", "20/21")
+    Award_Year %in% c("18/19","19/20", "20/21", "21/22")
     ) %>%
   select(ID_anonym, FY_ind, FY_startyear, Award_Year, Award_Class, Entry_Tariff) 
 

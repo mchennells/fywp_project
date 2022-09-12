@@ -318,6 +318,21 @@ d_marks_overall_eth <- d_marks_UG_collapse %>%
   ungroup() %>% 
   pivot_wider(names_from = student_type, values_from = c(marks_overall_mean, students_sum))
 
+  d_marks_UG_collapse %>% count(Ethnicity_collapse)
+
+with(data = d_marks_UG_collapse %>% 
+       filter(
+         student_type == "DE students",   # DE students only
+         Ethnicity_collapse %in% c("Black", "White"),   # Difference between white and black DE students
+              ),    
+     wilcox.test(mean_marks ~ Ethnicity_collapse, paired = FALSE))
+with(data = d_marks_UG_collapse %>% 
+       filter(
+         student_type == "FY",   # FY students only
+         Ethnicity_collapse %in% c("Black", "White"),
+       ),    
+     wilcox.test(mean_marks ~ Ethnicity_collapse, paired = FALSE))
+
 # ----------------------------------------------------------------------------------------
 # Plot overall marks
 
@@ -333,8 +348,19 @@ plot_marks_overall <-  ggplot(
     ggtitle("Average UG Overall marks across all modules") +
     coord_cartesian(ylim=c(0,80)) +
     theme_minimal(12) +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    scale_fill_manual(values=c("#3399FF", "#E69F00", "#006633"))
 plot_marks_overall
+
+  d_marks_UG_collapse %>% count(student_type)
+
+with(data = d_marks_UG_collapse %>% filter(student_type != "FY"),    # Difference between DE and DE-WP (FY excluded)
+     wilcox.test(mean_marks ~ student_type, paired = FALSE))
+with(data = d_marks_UG_collapse %>% filter(student_type != "DE - WP students"),    # Difference between DE and FY (DE-WP excluded)
+     wilcox.test(mean_marks ~ student_type, paired = FALSE))
+with(data = d_marks_UG_collapse %>% filter(student_type != "DE students"),    # Difference between DE-WP and FY (DE excluded)
+     wilcox.test(mean_marks ~ student_type, paired = FALSE))
+
 
 plot_marks_overall_startyear <-  ggplot(
   d_marks_UG_collapse, aes(x=UG_startyear, y=mean_marks, fill = FY)) + 
@@ -360,7 +386,8 @@ plot_marks_overall_stream <-  ggplot(
     xlab("Student entry type") +
     ggtitle("Average UG Overall marks between streams") +
     coord_cartesian(ylim=c(0,80)) +
-    theme_minimal(12) 
+    theme_minimal(12)  +
+    scale_fill_brewer(palette = "Dark2")
   #  theme(legend.position = "none")
 plot_marks_overall_stream
 
@@ -373,8 +400,8 @@ plot_marks_overall_stream <-  ggplot(
   xlab("Student entry type") +
   ggtitle("Average UG Overall marks between streams") +
   coord_cartesian(ylim=c(0,80)) +
-  theme_minimal(12) 
-#  theme(legend.position = "none")
+  theme_minimal(12)
+#  theme(legend.position = "none") 
 plot_marks_overall_stream
 
 
@@ -534,7 +561,8 @@ plot_marks_year <-  ggplot(
   coord_cartesian(ylim=c(0,90)) +
   scale_y_continuous(name = "Average marks (%)",  breaks = seq(0,90,10)) +
   theme_minimal(12) +
-  theme(legend.justification = c(0, 1), legend.position = c(0.75, 1), legend.title=element_blank())
+  theme(legend.justification = c(0, 1), legend.position = c(0.75, 1), legend.title=element_blank()) +
+  scale_color_manual(values=c("#3399FF", "#006633"))
 plot_marks_year
 
 plot_marks_year_type <-  ggplot(
@@ -558,9 +586,12 @@ plot_marks_year_type
 
 # ----------------------------------------------------------------------------------------
 ## FY AND PREDICTING UG MARKS
+  
+  d_ %>% count(FY)
+  d_ %>% count(student_type)
 
-d_marks_FYUG <- d_ %>% filter(FY == "FY" & !(ID_anonym %in% c("45465811","45475992"))) %>%
-  select(ID_anonym, Gender, Ethnicity, FY, ACRONYM, stream, New_Tariff, FY_startyear, UG_startyear, SCHOOLYEAR, timestamp, OVERALL_MARKS, MODULE_TYPE, OVERALL_MARKS_MODULE
+d_marks_FYUG <- d_ %>% filter(student_type == "FY" & !(ID_anonym %in% c("45465811","45475992"))) %>%
+  select(ID_anonym, Gender, Ethnicity_collapse, FY, ACRONYM, stream, New_Tariff, FY_startyear, UG_startyear, SCHOOLYEAR, timestamp, OVERALL_MARKS, MODULE_TYPE, OVERALL_MARKS_MODULE
          ) %>% 
   distinct() 
 
@@ -578,8 +609,8 @@ d_marks_FYUG <- d_marks_FYUG %>% filter(ID_anonym %in% d_remove$ID_anonym)
 # ----------------------------------------------------------------------------------------
 # Overall UG marks by FY marks
 
-d_marks_FYUG_overall <- d_marks_FYUG %>% select(ID_anonym, New_Tariff, FY_startyear, timestamp, OVERALL_MARKS) %>% distinct() %>%
-  group_by(ID_anonym, New_Tariff, FY_startyear, timestamp) %>% 
+d_marks_FYUG_overall <- d_marks_FYUG %>% select(ID_anonym, Ethnicity_collapse, New_Tariff, FY_startyear, timestamp, OVERALL_MARKS) %>% distinct() %>%
+  group_by(ID_anonym,Ethnicity_collapse, New_Tariff, FY_startyear, timestamp) %>% 
   summarise(mean_marks = mean(OVERALL_MARKS, na.rm = TRUE)) %>% 
   ungroup()
 d_marks_FYUG_overall %>% count(timestamp)
@@ -615,8 +646,24 @@ d_marks_FYUG_final <- left_join(d_marks_FYUG_pivot, d_marks_FYUG_module_pivot)
 d_marks_FYUG_final <- d_marks_FYUG_final %>% 
   filter(!(ID_anonym %in% c("45674377","45681167"))) # Remove 2 BTEC students, 1 very low DE student
 
+d_marks_FY_eth <- d_marks_FYUG_final %>% 
+  group_by(Ethnicity_collapse) %>% 
+  summarise(
+    FY_marks_overall_mean = mean(overall_marks_FY, na.rm = TRUE),
+    students_sum = n()) %>%
+  ungroup()
+
+  pivot_wider(names_from = student_type, values_from = c(marks_overall_mean, students_sum))
+
+with(data = d_marks_FYUG_final %>% 
+    filter(
+      Ethnicity_collapse %in% c("Black", "Asian"),   # Difference between white and black DE students
+    ),    
+  wilcox.test(overall_marks_FY ~ Ethnicity_collapse, paired = FALSE))
+
+
 # ANALYSIS OF FY MARKS
-# note: this is limited to the 52 FY students under consideration, though could be expanded to all
+# note: this is limited to the 95 FY students under consideration, though could be expanded to all
 
 ### >> Can add in regression of Predicted A-levels (which FY are selected on) and FY marks
 
