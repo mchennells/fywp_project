@@ -117,9 +117,9 @@ d_all <- d_all %>%
     stream = ifelse(ACRONYM %in% c('MN', 'MND', 'MNDI', 'MNE', 'MNEI', 'MNF', 'MNFI', 'MNI', 'MNM', 'MNMI', 'MNUPP'), 'MN',    # BSc Management + pathways
                     ifelse(ACRONYM %in% c('AF','AFI','AFU', 'AFUPP'), 'AF',    # BSc Accounting and Finance + pathways
                            ifelse(ACRONYM %in% c('IM', 'IMD', 'IME', 'IMF', 'IMM', 'IN'), 'IM',    # International Management and International Business; 4-yr degrees
-                                  ifelse(ACRONYM == 'FY', 'FY', NA))))
-  ) %>%
-  filter(stream %in% c('FY', 'MN', 'AF', 'IM'))
+                                  ifelse(ACRONYM == 'FY', 'FY', "non-WBS"))))
+  ) #%>%
+  # filter(stream %in% c('FY', 'MN', 'AF', 'IM'))
   # Note: FY students represented twice (will include 2 different records for (FY and UG)
 
   d_all %>% count(stream)

@@ -37,7 +37,8 @@ raw_data_scholandcontex <- read_csv(path_scholandcontex)
 
 # ____________________________________________________
 # Data selection for analysis
-d_ <- raw_data
+d_ <- raw_data %>%
+  filter(stream != "non-WBS")   # only keep if need to look at non-WBS stream students
 
     d_ %>% group_by(FY_ind) %>% distinct(ID_anonym) %>% tally() %>% ungroup()
     
@@ -240,8 +241,9 @@ marks_FYyear_module_year <- d_ %>% filter(ACRONYM == "FY") %>%
 # ... by FY UG startyear
 
 # Remove duplicates present from multiple modules by year
-d_marks_UG <- d_ %>% filter(ACRONYM != "FY") %>% 
-  select(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, student_type, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
+d_marks_UG <- d_ %>% 
+  filter(ACRONYM != "FY") %>% 
+  select(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, Disability, FY, student_type, FEESTATUS, ACRONYM, stream, FY_startyear, UG_startyear, SCHOOLYEAR, OVERALL_MARKS) %>% distinct()
 
   d_marks_UG %>% select(ID_anonym, FY,student_type, FY_startyear, UG_startyear) %>% distinct() %>% count(FY, UG_startyear) 
 
@@ -274,7 +276,7 @@ d_marks_UG <- d_ %>% filter(ACRONYM != "FY") %>%
 
 # Get one average mark per student (i.e. collapse)
 d_marks_UG_collapse <- d_marks_UG %>%
-  group_by(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, FY, student_type, ACRONYM, stream, UG_startyear) %>% 
+  group_by(ID_anonym, Gender, Ethnicity, Ethnicity_collapse, Disability, FY, student_type, FEESTATUS, ACRONYM, stream, UG_startyear) %>% 
   summarise( mean_marks = mean(OVERALL_MARKS, na.rm = TRUE)) %>% ungroup()
 
 # 
@@ -319,7 +321,8 @@ d_marks_overall_eth <- d_marks_UG_collapse %>%
   pivot_wider(names_from = student_type, values_from = c(marks_overall_mean, students_sum))
 
   d_marks_UG_collapse %>% count(Ethnicity_collapse)
-
+  d_marks_UG_collapse %>% count(UG_startyear)
+  
 with(data = d_marks_UG_collapse %>% 
        filter(
          student_type == "DE students",   # DE students only
@@ -377,7 +380,7 @@ plot_marks_overall_startyear
 
 #with(data = d_marks_UG_collapse, wilcox.test(mean_marks ~ FY, paired = FALSE))
 
-plot_marks_overall_stream <-  ggplot(
+plot_marks_overall_stream_FY <-  ggplot(
     d_marks_UG_collapse, aes(x=FY, y=mean_marks, fill = stream)) + 
     stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
     stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
@@ -389,7 +392,7 @@ plot_marks_overall_stream <-  ggplot(
     theme_minimal(12)  +
     scale_fill_brewer(palette = "Dark2")
   #  theme(legend.position = "none")
-plot_marks_overall_stream
+plot_marks_overall_stream_FY
 
 plot_marks_overall_stream <-  ggplot(
   d_marks_UG_collapse, aes(x=student_type, y=mean_marks, fill = stream)) + 
@@ -403,6 +406,110 @@ plot_marks_overall_stream <-  ggplot(
   theme_minimal(12)
 #  theme(legend.position = "none") 
 plot_marks_overall_stream
+
+
+# International vs home
+d_marks_UG_collapse_int <- d_marks_UG_collapse %>% 
+  mutate(home_int = ifelse(FEESTATUS == "H", "Home(UK)", "EU / International")
+         )
+  d_marks_UG_collapse_int %>% count(home_int)
+
+plot_marks_overall_int <-  ggplot(
+  d_marks_UG_collapse_int %>% filter(!is.na(home_int), FY == "Direct entry"), aes(x=home_int, y=mean_marks, fill = home_int)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
+  ylab("Average marks (%)") +
+  xlab("Fee Status") +
+  ggtitle("Average UG Overall marks between Home(UK) and International/EU") +
+  coord_cartesian(ylim=c(0,80)) +
+  theme_minimal(12) +
+  theme(legend.position = "none") +
+  scale_fill_brewer(palette = "Dark2")
+plot_marks_overall_int
+
+# ----------------------------------------------------------------------------------------
+# PLOT ATTAINMENT GAP
+
+d_marks_AG <- d_marks_UG_collapse %>% 
+  filter(
+    stream != "non-WBS",
+    Ethnicity_collapse %in% c("Asian", "Black", "White"),
+    )
+  
+  d_marks_AG %>% count(Ethnicity_collapse)
+  length(d_marks_AG$ID_anonym)
+  length(unique(d_marks_AG$ID_anonym))
+
+  
+ggplot(data = d_marks_AG, aes (x = Ethnicity_collapse, y = mean_marks, colour = student_type)) +
+  geom_boxplot(
+    outlier.shape = NA, 
+    position = position_dodge(width = 1),
+    ) +
+  geom_point(position = position_jitterdodge(dodge.width = 1), alpha = 0.4 ) +
+  stat_summary(
+    fun=mean, geom="point", shape=4, size=3, # color="black" to stand out more
+    position = position_dodge2(width = 1, preserve = "single")
+  ) +
+  scale_y_continuous(
+    limits = c(
+      max( min(d_marks_AG$mean_marks) - 10, 0),
+      min( max(d_marks_AG$mean_marks) + 10, 100)
+    ),
+    breaks = seq(0, 100, 10)
+  ) + 
+  ylab("Average marks (%)") +
+  xlab("Ethnicity") +
+  scale_colour_brewer(palette = "Dark2") +
+  theme_minimal() +
+  theme(legend.position = "top", legend.title = element_blank())
+  #   stat_summary(fun = mean, geom="point", shape=20, size=3, color="black") +
+  #   stat_summary(fun.data = mean_se, geom="errorbar", width = 0.2, color="black") # can also use mean_cl_boot in place of mean_se
+  # #  stat_summary(fun = mean, geom = 'line')
+  
+
+# ----------------------------------------------------------------------------------------
+# PLOT DISABILITY DIFFERENCES
+  
+  d_marks_UG_collapse %>% count(ACRONYM)
+  d_marks_UG_collapse %>% count(stream)
+
+d_dis <- d_marks_UG_collapse %>%
+  select(ID_anonym, UG_startyear, FEESTATUS, FY, student_type, Ethnicity_collapse, stream, Disability, mean_marks) %>% 
+  distinct()
+
+  d_dis %>% count(student_type, UG_startyear)
+  length(d_dis$ID_anonym)
+  length(unique(d_dis$ID_anonym))
+
+d_dis_spread <- d_dis %>% 
+  count(student_type, Disability) %>%
+  pivot_wider(names_from = student_type, values_from = n) %>%
+  arrange(Disability)
+
+d_dis_spread_marks <- d_dis %>% 
+  group_by(Disability) %>%
+  summarise(
+    n = n(),
+    mean = mean(mean_marks)
+  ) %>% ungroup() %>%
+  arrange(Disability)
+
+
+plot_marks_dis <-  ggplot(
+  d_dis %>% filter(!is.na(Disability)), aes(x= Disability, y=mean_marks, fill = Disability)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,0)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -2) +                  
+  ylab("Average marks (%)") +
+  xlab("Disability") +
+  ggtitle("Average UG Overall marks by disability") +
+  coord_cartesian(ylim=c(0,80)) +
+  theme_minimal(12) +
+  theme(legend.position = "none")
+plot_marks_dis
+
 
 
 # ----------------------------------------------------------------------------------------
@@ -437,7 +544,7 @@ plot_marks_numeric <-  ggplot(
       theme_minimal(12) +
       theme(legend.position = "none")
 plot_marks_numeric
-with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Numeric"), wilcox.test(mean_marks ~ FY, paired = FALSE))
+#with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Numeric"), wilcox.test(mean_marks ~ FY, paired = FALSE))
 
 # # ... by year
 # plot_marks_numeric_year <-  ggplot(
@@ -470,7 +577,7 @@ plot_marks_social <-  ggplot(
       theme_minimal(12) +
       theme(legend.position = "none")
 plot_marks_social
-with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Social studies"), wilcox.test(mean_marks ~ FY, paired = FALSE))
+#with(data = d_marks_UG_modules_collapse %>% filter(MODULE_TYPE == "Social studies"), wilcox.test(mean_marks ~ FY, paired = FALSE))
 
 # # ... by year
 # plot_marks_social_year <-  ggplot(
@@ -652,8 +759,6 @@ d_marks_FY_eth <- d_marks_FYUG_final %>%
     FY_marks_overall_mean = mean(overall_marks_FY, na.rm = TRUE),
     students_sum = n()) %>%
   ungroup()
-
-  pivot_wider(names_from = student_type, values_from = c(marks_overall_mean, students_sum))
 
 with(data = d_marks_FYUG_final %>% 
     filter(
@@ -1033,47 +1138,137 @@ wilcox.test(mean_attend_sem ~ FY, data = d_attend_sem_modules_collapse %>% filte
 # NUMBER OF MITIGATING CIRCUMSTANCES
 
 d_mit <- d_ %>%
-  filter(ACRONYM != "FY" & !(ID_anonym %in% c("45465811","45475992"))) %>% 
+  filter(
+    ACRONYM != "FY" & !(ID_anonym %in% c("45465811","45475992")),
+    stream != "non-WBS"
+    ) %>% 
   mutate(
-    count_mit_ave = ifelse(UG_startyear == "2016-2017", COUNT_MITIGATING_CIRCUMSTANCES/4,
-                           ifelse(UG_startyear == "2017-2018", COUNT_MITIGATING_CIRCUMSTANCES/3,
-                                  ifelse(UG_startyear == "2018-2019",COUNT_MITIGATING_CIRCUMSTANCES/2, 
-                                         ifelse(UG_startyear == "2019-2020",COUNT_MITIGATING_CIRCUMSTANCES,999))))
+    count_mit_ave = ifelse(UG_startyear == "2016-2017", COUNT_MITIGATING_CIRCUMSTANCES/6,
+                           ifelse(UG_startyear == "2017-2018", COUNT_MITIGATING_CIRCUMSTANCES/5,
+                                  ifelse(UG_startyear == "2018-2019",COUNT_MITIGATING_CIRCUMSTANCES/4, 
+                                         ifelse(UG_startyear == "2019-2020",COUNT_MITIGATING_CIRCUMSTANCES/3,
+                                                ifelse(UG_startyear == "2020-2021",COUNT_MITIGATING_CIRCUMSTANCES/2,
+                                                       ifelse(UG_startyear == "2021-2022",COUNT_MITIGATING_CIRCUMSTANCES, 999))))))
   ) %>% 
-  select(ID_anonym, UG_startyear, FY, COUNT_MITIGATING_CIRCUMSTANCES, count_mit_ave) %>% 
-  distinct()
+  select(ID_anonym, UG_startyear, FY, student_type, Ethnicity_collapse, stream, COUNT_MITIGATING_CIRCUMSTANCES, count_mit_ave) %>% 
+  distinct() %>%
+  mutate(student_type_coll = ifelse(student_type %in% c("DE - WP students", "FY"), "FY / WP students", "DE students"))
 
-d_mit %>% count(FY)
+  d_mit %>% count(UG_startyear)
+  d_mit %>% count(student_type, UG_startyear)
+
+  d_mit %>% count(student_type)
+  d_mit %>% count(student_type_coll)
+  
+  length(d_mit$ID_anonym)
+  length(unique(d_mit$ID_anonym))
+  
+  summary(d_mit$count_mit_ave)
 
 d_mitigating_overall <- d_mit %>% 
-  group_by(FY) %>% 
+  group_by(student_type) %>% 
   summarise(
     mitigating_mean = mean(count_mit_ave, na.rm = TRUE),
     students_sum = n()) %>%
   ungroup()
 
 d_mitigating_overall_year <- d_mit %>% 
-  group_by(UG_startyear, FY) %>% 
+  group_by(UG_startyear, student_type) %>% 
   summarise(
     mitigating_mean = mean(count_mit_ave, na.rm = TRUE),
     students_sum = n()) %>%
   ungroup()
 
-chisq.test(d_mit$count_mit_ave, d_mit$FY, correct = TRUE)
+chisq.test(d_mit$count_mit_ave, d_mit$student_type, correct = TRUE)
+
+ d_mit <- d_mit %>%
+   mutate(
+     student_type = fct_relevel(student_type,"DE students", "DE - WP students", "FY"),
+     student_type_coll = fct_relevel(student_type_coll,"DE students", "FY / WP students")
+          
+          ) 
 
 # Plot mitigating factors
 plot_mitigating_overall <-  ggplot(
-  d_mit, aes(x=FY, y=count_mit_ave, fill = FY)) + 
+  d_mit, aes(x=student_type, y=count_mit_ave, fill = student_type)) + 
   stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
   stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
-  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -10) +                  
+  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -7) +                  
   ylab("Average number of mitigating factors per year") +
   xlab("Student entry type") +
-  ggtitle("Average number of mitigating factors per UG student per year, by entry type") +
+  ggtitle("Mitigating factors, by student type") +
   coord_cartesian(ylim=c(0,0.6)) +
   theme_minimal(12) +
-  theme(legend.position = "none")
+  theme(legend.position = "none") +
+  scale_fill_manual(values=c("#3399FF", "#E69F00", "#006633"))
 plot_mitigating_overall
+
+plot_mitigating_year <-  ggplot(
+  d_mit, aes(x=UG_startyear, y=count_mit_ave, fill = student_type)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -7) +                  
+  ylab("Average number of mitigating factors per year") +
+  xlab("UG startyear") +
+  ggtitle("Mitigating factors, by student type and UG start year") +
+  coord_cartesian(ylim=c(0,0.8)) +
+  theme_minimal(12) +
+  theme(legend.position = "none") +
+  scale_fill_manual(values=c("#3399FF", "#E69F00", "#006633")) +
+  theme(legend.position = "bottom", legend.title = element_blank())
+plot_mitigating_year
+
+  d_mit %>% count(Ethnicity_collapse)
+  d_mit %>% count(student_type)
+  
+plot_mitigating_eth <-  ggplot(
+  d_mit %>% filter(Ethnicity_collapse %in% 
+                     c("Arab", "Asian", "Black", "Chinese", "Mixed", "White")),
+  aes(x=Ethnicity_collapse, y=count_mit_ave, fill = Ethnicity_collapse)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -7) +                  
+  ylab("Average number of mitigating factors per year") +
+  xlab("Student ethnicity type") +
+  ggtitle("Mitigating factors, by student ethnicity") +
+  coord_cartesian(ylim=c(0,0.6)) +
+  theme_minimal(12) +
+  scale_fill_brewer(palette = "Dark2") +
+  theme(legend.position = "none")
+plot_mitigating_eth
+
+
+plot_mitigating_eth_2 <-  ggplot(
+  d_mit %>% filter(Ethnicity_collapse %in% 
+    c("Arab", "Asian", "Black", "Chinese", "Mixed", "White")),
+  aes(x=Ethnicity_collapse, y=count_mit_ave, fill = student_type_coll)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -7) +                  
+  ylab("Average number of mitigating factors per year") +
+  xlab("Student ethnicity type") +
+  ggtitle("Mitigating factors, by student ethnicity and category") +
+  coord_cartesian(ylim=c(0,1)) +
+  theme_minimal(12) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_brewer(palette = "Dark2")
+plot_mitigating_eth_2
+
+
+plot_mitigating_stream <-  ggplot(
+  d_mit, aes(x=stream, y=count_mit_ave, fill = student_type_coll)) + 
+  stat_summary(fun = mean, geom='bar', width=0.5, position=position_dodge(0.5)) +
+  stat_summary(fun.data = mean_se, geom='errorbar', position=position_dodge(0.5), width=0.2) +
+  stat_summary(aes(label=round(..y..,2)), fun=mean, geom="text", position=position_dodge(0.5), vjust = -7) +                  
+  ylab("Average number of mitigating factors per year") +
+  xlab("Stream") +
+  ggtitle("Mitigating factors, by stream and student type") +
+  coord_cartesian(ylim=c(0,1.2)) +
+  theme_minimal(12) +
+  theme(legend.position = "bottom", legend.title = element_blank()) +
+  scale_fill_brewer(palette = "Dark2")
+  # scale_fill_manual(values=c("#3399FF", "#E69F00", "#006633"))
+plot_mitigating_stream
 
 # 
 # # with(data = d_, cor.test(COUNT_MITIGATING_CIRCUMSTANCES,OVERALL_MARKS.UG., method = "spearman"))
@@ -1109,6 +1304,7 @@ plot_mitigating_overall
 # # --> only valid in social sciences, though findings might be because most FY students who have mitigating factors are in Management program with social studies
 # 
 # 
+
 
 # ==========================================================================================
 # WIDENING PARTICIPATION => WP_INDEX

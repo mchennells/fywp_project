@@ -45,7 +45,10 @@ d_ <- raw_data %>%
     STAGE_DESCRIPTION, STATUS_DESCRIPTION, FEESTATUS, FEESTATUS_DESCRIPTION,
     Entry_Tariff, New_Tariff, Award_Class, Award_Year, Intake_Year,
     Gender, Ethnicity, Ethnicity_collapse, Disability
-  )
+  ) %>%
+  filter(stream != "non-WBS")   # only keep if need to look at non-WBS stream students
+
+  d_ %>% count(stream)
 
 # Note number of FY students who have left
 d_left <- d_ %>% 
@@ -429,11 +432,47 @@ write.xlsx(d_DE_SEC,'output/descriptive/d_DE_SEC.xlsx',rowNames = F)
 d_scholcont_select <- raw_data_scholandcontex %>% 
   select(ID_anonym , ind_WBS_Scholarship, ind_Warwick_Scholar, ind_Contextual_Offer)
 
-# New tariff dataset
-d_DE_wp_schol <- d_DE_wp %>% left_join(d_scholcont_select) %>%
+d_DE_wponly <- d_ %>%
+  filter(
+    FY_ind == 0,
+    STATUS_DESCRIPTION != "No Show",
+    #FEESTATUS == "H"
+  ) %>% 
+  distinct()
+
+d_DE_wponly <- left_join(d_DE_wponly, raw_data_wp_DE)
+
+d_DE_wponly <- d_DE_wponly %>% left_join(d_scholcont_select) %>%
   mutate(ind_SCHOLFUL = ifelse( 
     ind_WBS_Scholarship == "Yes" | ind_Warwick_Scholar == "Yes" | ind_Contextual_Offer == "Yes", "Yes", "No")) %>%
   filter(ind_SCHOLFUL == "Yes")
+
+
+# DE-WP : progress
+d_DE_wponly_spread <- d_DE_wponly %>%
+  group_by(UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION, Award_Class) %>%
+  tally() %>% ungroup()
+
+  View(d_DE_wponly %>% filter(UG_startyear == "2019-2020", STAGE_DESCRIPTION == "Stage 3"))
+
+# DE - WP: gender and ethnicity (doesn't exclude those who've left and includes all students, not only home)
+  d_DE_wponly %>% count(Gender)
+  
+  d_DE_wponly %>% count(Ethnicity_collapse)
+d_eth_dewp <- d_DE_wponly %>%
+  select(ID_anonym, Intake_Year, Ethnicity_collapse) %>%
+  group_by(Ethnicity_collapse) %>%
+  summarize(eth_sum = n()) %>%
+  spread(Ethnicity_collapse, eth_sum, fill = 0) %>%
+  ungroup()
+
+# DE - WP students : wp characteristics
+
+d_DE_wp_schol <- d_DE_wponly %>%
+  filter(STAGE_DESCRIPTION != "Left")   # Removes those who've left
+
+
+d_DE_wp_schol %>% count(Ethnicity_collapse)
 
 d_DE_wp_schol  %>% count(WP1_InCare_n_J)
 
@@ -446,16 +485,6 @@ d_DE_wp_schol  %>% count(WP4_LPN_n_J)
 d_DE_wp_schol  %>% count(WP5_1stGen_n_J)
 
 d_DE_wp_schol  %>% count(IMD_Quintile)
-
-
-# ----------------------------------------------------------------------------------------
-
-# Check here for quality of the data over time
-
-# % NA by intake year
-# xx
-
-
 
 
 
@@ -662,19 +691,83 @@ plot_tariffs_cohort_DE
 d_grad <- d_ %>% 
   filter(
     ACRONYM != "FY", 
-    STATUS_DESCRIPTION == "Awarded", 
-    Award_Year %in% c("18/19","19/20", "20/21", "21/22")
+#    STATUS_DESCRIPTION == "Awarded", 
+#    Award_Year %in% c("18/19","19/20", "20/21", "21/22")
     ) %>%
-  select(ID_anonym, FY_ind, FY_startyear, Award_Year, Award_Class, Entry_Tariff) 
+  select(ID_anonym, stream, ACRONYM, FY_ind, Intake_Year, FY_startyear, UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION, Award_Year, Award_Class, Entry_Tariff) %>%
+  distinct()
 
-  # Compare DE and FY students for years in question
-  d_grad %>% select(ID_anonym, FY_ind, Award_Year, Award_Class) %>% distinct() %>% count(Award_Year, FY_ind, Award_Class)
+  d_grad %>% count(stream)
+  d_grad %>% count(FY_ind)
 
-# Award breakdown by FY cohort
-d_grad_award  <- d_grad %>% 
+# FY progress (confirm numbers)
+d_grad_FY_stage <- d_grad %>%
   filter(FY_ind == 1) %>%
-  select(ID_anonym, FY_startyear, Award_Year, Award_Class) %>% distinct() %>% 
-  count(FY_startyear, Award_Class, Award_Year)
+  count(FY_startyear, UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION)
+
+## Award breakdown by FY cohort
+d_grad_FY_award  <- d_grad %>% 
+  filter(FY_ind == 1) %>%
+  filter(
+    STAGE_DESCRIPTION %in% c("Completed", "Stage 4", "Stage 3"),
+    ! (STATUS_DESCRIPTION %in% c("TWD", "Forced Withdrawn"))
+    ) %>%
+  select(ID_anonym, FY_startyear, UG_startyear, STAGE_DESCRIPTION, Award_Year, Award_Class) 
+
+  d_grad_FY_award %>% count(STAGE_DESCRIPTION)
+  length(d_grad_FY_award$ID_anonym)
+
+d_grad_FY_award_class <- d_grad_FY_award %>% 
+  count(FY_startyear, Award_Class) %>%
+  pivot_wider(names_from = Award_Class, values_from = n)
+  
+
+## DE - WP
+d_DE_wponly_spread1 <- d_DE_wponly %>%
+  group_by(UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION, Award_Class) %>%
+  tally() %>% ungroup()
+
+d_DE_wponly_spread2 <- d_DE_wponly %>%
+  filter(
+    STAGE_DESCRIPTION %in% c("Completed", "Stage 4", "Stage 3"),
+    ! (STATUS_DESCRIPTION %in% c("TWD", "Forced Withdrawn"))
+  ) %>%
+  count(UG_startyear, Award_Class) %>%
+  pivot_wider(names_from = Award_Class, values_from = n)
+
+
+# DE direct
+d_grad_DE  <- d_grad %>% 
+ filter(FY_ind == 0,
+        ! (ID_anonym %in% d_DE_wponly$ID_anonym),
+        ! (UG_startyear %in% c("2014", "2015-2016")), 
+        ! is.na(UG_startyear),
+        STATUS_DESCRIPTION != "No Show"
+        ) 
+  d_grad_DE %>% count(stream)
+  d_grad_DE %>% count(UG_startyear)
+ 
+d_grad_DE_stage_1 <- d_grad_DE %>%
+  count(UG_startyear, STAGE_DESCRIPTION, STATUS_DESCRIPTION)
+
+d_grad_DE_stage_2 <- d_grad_DE_stage_1 %>%
+  pivot_wider(names_from = STAGE_DESCRIPTION, values_from = n)
+
+d_grad_DE_award <- d_grad_DE %>%
+  filter(
+    STAGE_DESCRIPTION == "Completed" | ( (STAGE_DESCRIPTION == "Stage 3" | STAGE_DESCRIPTION == "Stage 4") & STATUS_DESCRIPTION == "Full" )
+  ) %>%
+  count(UG_startyear, Award_Class) %>%
+  pivot_wider(names_from = Award_Class, values_from = n)
+    
+  pivot_wider(names_from = STAGE_DESCRIPTION, values_from = n)
+
+
+# d_grad_DE_stage_2 <- d_grad_DE %>%
+#   count(UG_startyear, STAGE_DESCRIPTION) %>%
+#   pivot_wider(names_from = STAGE_DESCRIPTION, values_from = n)
 
 
 # ============================================================================================================
+
+
